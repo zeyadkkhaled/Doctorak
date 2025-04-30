@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e8fffc;
+    margin: 0;
+    padding: 0;
+}
+
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.signin-container {
+    background-color: #ffffff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.signin-form h2 {
+    text-align: center;
+    color: #007b8a;
+    margin-bottom: 1.5rem;
+}
+
+.signin-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+}
+
+.signin-form input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border 0.3s;
+}
+
+.signin-form input:focus {
+    border-color: #007b8a;
+    outline: none;
+}
+
+.signin-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007b8a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.signin-form button:hover {
+    background-color: #005f6b;
+}
+
+.back-home-link {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 14px;
+}
+
+.back-home-link a {
+    color: #007b8a;
+    text-decoration: none;
+}
+
+.back-home-link a:hover {
+    text-decoration: underline;
+}

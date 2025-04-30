@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doctorak - Doctor Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/spec.css" />
+  <link rel="icon" href="../imgs/logoso88.png" type="image/x-icon" />
+</head>
+<body>
+
+<my-header></my-header>
+
+<div class="header">
+  <h1>Book a Doctor Online</h1>
+  <select id="sortOption" onchange="sortCards()">
+    <option value="nearest">Sort by: Nearest to you</option>
+    <option value="cost-asc">Sort by: Cost (Low to High)</option>
+    <option value="cost-desc">Sort by: Cost (High to Low)</option>
+    <option value="stars-desc">Sort by: Stars (High to Low)</option>
+  </select>
+</div>
+
+<div class="grid" id="doctorGrid">
+  <!-- Doctor Card Example -->
+  <div class="card" data-cost="900" data-stars="2293">
+    <div class="card-header">
+      <div>
+        <h3>Dr. refa3y</h3>
+        <p class="specialty">Dentist [Specialized in Orthodontics and Dental Surgery]</p>
+      </div>
+      <img src="../imgs/WhatsApp Image 2025-04-21 at 20.43.01_612a754c.jpg" alt="Doctor">
+    </div>
+    <div class="rating">
+      <span>★★★★★</span>
+      <span>(10) 2293</span>
+    </div>
+    <p class="location">📍 Maadi - Cairo</p>
+    <p class="fees">Examination Fee: $500</p>
+    <button class="book-btn" data-bs-toggle="modal" data-bs-target="#makeAppointmentModal" data-doctor="Dr. refa3y">Book for $900</button>
+  </div>
+
+  <div class="card" data-cost="700" data-stars="3840">
+    <div class="card-header">
+      <div>
+        <h3>Dr. bastawi</h3>
+        <p class="specialty">Dentist [Specialized in General Dentistry]</p>
+      </div>
+      <img src="../imgs/ana.jpg" alt="Doctor">
+    </div>
+    <div class="rating">
+      <span>★★★★★</span>
+      <span>(35) 3840</span>
+    </div>
+    <p class="location">📍 Nasr City - Cairo</p>
+    <p class="fees">Examination Fee: $300</p>
+    <button class="book-btn" data-bs-toggle="modal" data-bs-target="#makeAppointmentModal" data-doctor="Dr. bastawi">Book for $700</button>
+  </div>
+
+  <div class="card" data-cost="700" data-stars="2982">
+    <div class="card-header">
+      <div>
+        <h3>Dr. Omar Essam</h3>
+        <p class="specialty">Dentist [Specialized in Cosmetic Dentistry]</p>
+      </div>
+      <img src="../imgs/essam.jpg" alt="Doctor">
+    </div>
+    <div class="rating">
+      <span>★★★★★</span>
+      <span>(22) 2982</span>
+    </div>
+    <p class="location">📍 Zamalek - Cairo</p>
+    <p class="fees">Examination Fee: $300</p>
+    <button class="book-btn" data-bs-toggle="modal" data-bs-target="#makeAppointmentModal" data-doctor="Dr. Omar Essam">Book for $700</button>
+  </div>
+
+  <div class="card" data-cost="400" data-stars="558">
+    <div class="card-header">
+      <div>
+        <h3>Dr. Omar Nabil</h3>
+        <p class="specialty">Dentist [Specialized in Endodontics]</p>
+      </div>
+      <img src="../imgs/nabil.jpg" alt="Doctor">
+    </div>
+    <div class="rating">
+      <span>★★★★★</span>
+      <span>(5) 558</span>
+    </div>
+    <p class="location">📍 Heliopolis - Cairo</p>
+    <p class="fees">Examination Fee: $450</p>
+    <button class="book-btn" data-bs-toggle="modal" data-bs-target="#makeAppointmentModal" data-doctor="Dr. Omar Nabil">Book for $400</button>
+  </div>
+
+  <div class="card" data-cost="800" data-stars="43">
+    <div class="card-header">
+      <div>
+        <h3>Dr. Ziad Khaled</h3>
+        <p class="specialty">Dentist [Specialized in Pediatric Dentistry]</p>
+      </div>
+      <img src="../imgs/zoz.jpg" alt="Doctor">
+    </div>
+    <div class="rating">
+      <span>★★★★★</span>
+      <span>(3) 43</span>
+    </div>
+    <p class="location">📍 Mohandessin - Giza</p>
+    <p class="fees">Examination Fee: $250</p>
+    <button class="book-btn" data-bs-toggle="modal" data-bs-target="#makeAppointmentModal" data-doctor="Dr. Ziad Khaled">Book for $800</button>
+  </div>
+
+  <div class="card" data-cost="800" data-stars="2745">
+    <div class="card-header">
+      <div>
+        <h3>Dr. Eassam SASA</h3>
+        <p class="specialty">Psychiatry [Specialized in 2sool w gd3ana]</p>
+      </div>
+      <img src="../imgs/sasa.jpeg" alt="Doctor">
+    </div>
+    <div class="rating">
+      <span>★★★★★</span>
+      <span>(17) 2745</span>
+    </div>
+    <p class="location">📍 Dokki - Giza</p>
+    <p class="fees">Examination Fee: $300</p>
+    <button class="book-btn" data-bs-toggle="modal" data-bs-target="#makeAppointmentModal" data-doctor="Dr. Eassam SASA">Book for $800</button>
+  </div>
+
+  <div class="card" data-cost="800" data-stars="2745">
+    <div class="card-header">
+      <div>
+        <h3>Dr. George Wassouf</h3>
+        <p class="specialty">Surgery [Specialized in tabeb gra77 2lob el nas ydaweha]</p>
+      </div>
+      <img src="../imgs/wassof.jpeg" alt="Doctor">
+    </div>
+    <div class="rating">
+      <span>★★★★★</span>
+      <span>(17) 2745</span>
+    </div>
+    <p class="location">📍 Dokki - Giza</p>
+    <p class="fees">Examination Fee: $300</p>
+    <button class="book-btn" data-bs-toggle="modal" data-bs-target="#makeAppointmentModal" data-doctor="Dr. George Wassouf">Book for $800</button>
+  </div>
+</div>
+
+<!-- Make Appointment Modal -->
+<div class="modal fade" id="makeAppointmentModal" tabindex="-1" aria-labelledby="makeAppointmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="makeAppointmentModalLabel">Schedule a New Appointment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="makeAppointmentForm">
+          <div class="mb-3">
+            <label for="appointmentDate" class="form-label">Date</label>
+            <input type="date" class="form-control" id="appointmentDate" required>
+          </div>
+          <div class="mb-3">
+            <label for="appointmentTime" class="form-label">Time</label>
+            <input type="time" class="form-control" id="appointmentTime" required>
+          </div>
+          <div class="mb-3">
+            <label for="doctorName" class="form-label">Doctor</label>
+            <input type="text" class="form-control" id="doctorName" readonly required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" id="scheduleAppointment">Schedule Appointment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<my-footer></my-footer>
+
+<!-- Scripts -->
+<script src="../script/home.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Script to update doctor's name in the modal -->
+
+
+
+</body>
+</html>

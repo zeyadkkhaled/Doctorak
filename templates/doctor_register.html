@@ -1,0 +1,22 @@
+<!-- This is a Django template for the doctor registration page -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Registration</title>
+    <link rel="stylesheet" href="{% static 'css/stlesheet.css'%}"> 
+    {# django already knows that the location of my static files is in static so no need to write that #}
+
+</head>
+<body>
+<img src="{% static 'images/Screenshot 2024-07-22 223913.png' %}">
+    <h2>Doctor Registration</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form>
+
+</body>
+</html>

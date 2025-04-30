@@ -1,0 +1,105 @@
+footer {
+    background-color: #00c4b4; /* Blue background for the footer */
+    color: white;
+    padding: 10px;
+    margin-top: 15px;
+    position: relative;
+    }
+    footer .social-icons i {
+        font-size: 1.5rem;
+        margin: 0 10px;
+        color: #ffffff;
+    }
+    .h{
+        background-color: #00c4b4;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        direction: ltr;
+        background-color: #e8fffc;
+        margin: 0;
+        padding: 0px;
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px;
+        margin-bottom: 0px;
+    }
+    .header h1 {
+        color: #319194;
+        padding: 0px;
+    }
+    .header select {
+        padding: 5px;
+    }
+
+.profile-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 50px;
+}
+.profile-header {
+    flex: 0 0 250px;
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 50px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.profile-header img {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid #6c757d;
+}
+.content {
+    flex: 1;
+}
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+.card-header {
+    font-weight: bold;
+}
+.btn-upload {
+    background-color: #00c4b4;
+    color: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+}
+.btn-upload:hover {
+    background-color: #00c4b4;
+}
+.comments-area textarea {
+    resize: none;
+    border-radius: 10px;
+}
+.btn-upload {
+    background-color: #00c4b4;
+    color: white;
+    border-radius: 20px;
+}
+.btn-upload:hover {
+    background-color: #00c4b4;
+}
+textarea {
+    resize: none;
+}
+.profile-header {
+    position: fixed; 
+    top: 50px;
+    left: 20px; 
+    width: 300px; 
+    z-index: 1000; 
+}
+.content{
+    padding-left: 200px;
+    width: 100%;
+}

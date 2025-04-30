@@ -140,7 +140,7 @@
           <div class="card-body">
             <h5 class="card-title" style="color: #00c4b4;">Sudden Stomach Pain & Main Causes</h5>
             <p class="card-text">Stomach pain can appear suddenly and is often due to indigestion or acidity. But it's important to know when to see a doctor...</p>
-            <a href="../pages/articles.html#article-1" class="text-success">Read Full Article</a>
+            <a href="/articles.html#article-1" class="text-success">Read Full Article</a>
           </div>
         </div>
       </div>
@@ -150,7 +150,7 @@
           <div class="card-body">
             <h5 class="card-title" style="color: #00c4b4;">Serious Causes of High Body Temperature and Their Symptoms</h5>
             <p class="card-text">Evaluating whether a high body temperature is dangerous for adults or children involves more than just focusing on the number...</p>
-            <a href="../pages/articles.html#article-2" class="text-success">Read Full Article</a>
+            <a href="/articles.html#article-2" class="text-success">Read Full Article</a>
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@
           <div class="card-body">
             <h5 class="card-title" style="color: #00c4b4;">5 Causes Behind Chest Pain</h5>
             <p class="card-text">Chest pain is often alarming as it may indicate heart conditions or other serious issues. Learn about the common causes...</p>
-            <a href="../pages/articles.html#article-3" class="text-success">Read Full Article</a>
+            <a href="/articles.html#article-3" class="text-success">Read Full Article</a>
           </div>
         </div>
       </div>
@@ -171,7 +171,9 @@
 
   <!-- External Scripts -->
   <script>
-  const static_url = "{% static '' %}";  // This will provide the base static URL
+       {#const CSRF_TOKEN = "{{ csrf_token }}";#}
+      const LOGIN_URL = "{{ login_url }}";
+      const static_url = "{% static '' %}";  // This will provide the base static URL
 </script>
   <script src="{% static 'script/home.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

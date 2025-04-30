@@ -98,8 +98,8 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="/login/" method="post">
-                                    {% csrf_token %}
+                               <form action="${LOGIN_URL}" method="post">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
                                     <div class="alert alert-warning">Example Flash Message</div>
                                     <div class="form-group mb-3">
                                         <label for="email">Email address</label>
@@ -151,7 +151,8 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="/login" method="post">
+                                  <form action="${LOGIN_URL}" method="post">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
                                     <div class="alert alert-warning">Enter your account details!!!</div>
                                     <div class="form-group mb-3">
                                         <label for="email">Email address</label>

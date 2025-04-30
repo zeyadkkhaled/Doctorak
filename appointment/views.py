@@ -4,10 +4,12 @@ from .models import User, Doctor, Clinic
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,get_user_model
+from django.urls import reverse
 
 
 def home(request):
-    return render(request, 'home.html')
+    login_url= reverse('login')
+    return render(request, 'home.html', {'login_url': login_url})
 
 
 def doctor_register(request):
@@ -63,4 +65,9 @@ def loginPage(request):
         else:
             messages.error(request, "Invalid credentials.")
 
+
     return render(request, 'signin.html')
+
+
+def articles(request):
+    return render(request, 'articles.html')

@@ -1,11 +1,13 @@
+#from email.utils import specialsre
+
 from django.shortcuts import redirect
 from .forms import DoctorRegisterForm
-from .models import User, Doctor, Clinic
+from .models import User, Doctor, Clinic, Patient
 from django.shortcuts import render
 from django.contrib import messages
-from django.contrib.auth import authenticate, login,get_user_model
+from django.contrib.auth import authenticate, login,get_user_model,logout
 from django.urls import reverse
-
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     login_url= reverse('login')
@@ -45,10 +47,76 @@ def doctor_register_success(request):
 
 
 def register(request):
-    return render(request, 'signup.html')
+    message = request.GET.get('message')
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        password = request.POST['password']
+        gender = request.POST['gender']
+        role = request.POST['role']
+        dob = request.POST['dob']
+        phone_number = request.POST['phone']
+        address = request.POST['address']
+        speciality = request.POST['speciality']
+        experience = request.POST['experience']
+
+        # Check if the email already exists
+        if User.objects.filter(email=email).exists():
+            return render(request, 'signup.html', {'message': "Email already exists."})
+        else :
+            if role == 'doctor':
+                user = User.objects.create_user(
+                    email=email,
+                    password=password,
+                    role='doctor',
+                    gender=gender,
+                    dob=dob,
+                    phone=phone_number,
+                    address=address,
+                    speciality=speciality,
+                    experience=experience,
+                )
+
+                # Create Doctor profile
+                Doctor.objects.create(
+                    user=user,
+                    f_name=first_name,
+                    l_name=last_name,
+
+
+                )
+                message = "Registration successful. You can now log in."
+            elif role == 'patient':
+
+                user = User.objects.create_user(
+                    email=email,
+                    password=password,
+                    role='patient'
+                )
+
+                # Create Patient profile
+                Patient.objects.create(
+                    user=user,
+                    f_name=first_name,
+                    l_name=last_name,
+                    gender=gender,
+                    dob=dob,
+                    phone=phone_number,
+                    address=address,
+                )
+                message = "Registration successful. You can now log in."
+
+
+    return render(request, 'signup.html', {'message': message})
 
 
 def loginPage(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -57,7 +125,7 @@ def loginPage(request):
         if user:
             login(request, user) # Log the user in and create a session
             if user.role == 'doctor':
-                return render(request, 'success.html')
+                return redirect('doctor_profile', doctor_id=user.user_id)  # Redirect to the doctor's profile
             elif user.role == 'patient':
                 return redirect('patient_dashboard')
             elif user.role == 'admin':
@@ -71,3 +139,16 @@ def loginPage(request):
 
 def articles(request):
     return render(request, 'articles.html')
+@login_required(login_url='login')
+def doctor_profile(request, doctor_id):
+    try:
+        doctor = Doctor.objects.get(user_id=doctor_id)
+        clinics = Clinic.objects.filter(doctor=doctor)
+    except Doctor.DoesNotExist:
+        return render(request, '404.html', status=404)
+
+    return render(request, 'd-profile.html', {'doctor': doctor, 'clinics': clinics})
+
+def logoutUser(request):
+    logout(request)
+    return redirect('home')

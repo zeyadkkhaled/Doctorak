@@ -25,9 +25,14 @@
 
 <div class="main py-5">
     <div class="signup-container mx-auto">
-        <form class="signup-form" method="post" action="/">
-{#    action specifies where (which URL) the form data should be sent when the user submits the form. if empty it will submit to same url     #}
+        <form class="signup-form" method="post" action="/register/">
+            {#    action specifies where (which URL) the form data should be sent when the user submits the form. if empty it will submit to same url     #}
             {% csrf_token %}
+            {% if message %}
+                <div class="alert alert-danger text-center" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
             <!-- Title with Back Arrow -->
             <div class="d-flex align-items-center mb-4">
                 <a href="/" class="text-decoration-none me-2 text-dark">
@@ -41,12 +46,14 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="firstname" class="form-label">First Name</label>
-                    <input type="text" id="firstname" class="form-control" placeholder="Enter your first name"
+                    <input type="text" id="firstname" name="first_name" class="form-control"
+                           placeholder="Enter your first name"
                            required>
                 </div>
                 <div class="col-md-6">
                     <label for="lastname" class="form-label">Last Name</label>
-                    <input type="text" id="lastname" class="form-control" placeholder="Enter your last name"
+                    <input type="text" id="lastname" name="last_name" class="form-control"
+                           placeholder="Enter your last name"
                            required>
                 </div>
             </div>
@@ -54,7 +61,7 @@
 
             <div class="mb-3">
                 <label for="role" class="form-label">Gender</label>
-                <select id="role" class="form-select" required>
+                <select id="gender" name="gender" class="form-select" required>
                     <option value="" disabled selected>Select your Gender</option>
                     <option value="doctor">Male</option>
                     <option value="patient">Female</option>
@@ -62,37 +69,88 @@
             </div>
 
             <!-- Role -->
+
             <div class="mb-3">
                 <label for="role" class="form-label">Role</label>
-                <select id="role" class="form-select" required>
+                <select id="role" name="role" class="form-select" required>
                     <option value="" disabled selected>Select your role</option>
                     <option value="doctor">Doctor</option>
                     <option value="patient">Patient</option>
                 </select>
             </div>
 
+
             <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email"
+                       required>
             </div>
 
             <!-- Password -->
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" class="form-control" placeholder="Create a password"
-                       minlength="5" required>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control"
+                           placeholder="Create a password" minlength="5" required>
+                    <button class="btn btn-outline-secondary" type="button"
+                            onclick="togglePassword('password', this)">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Confirm Password -->
             <div class="mb-3">
                 <label for="confirm-password" class="form-label">Confirm Password</label>
-                <input type="password" id="confirm-password" class="form-control" placeholder="Repeat your password"
-                       minlength="5" required>
+                <div class="input-group">
+                    <input type="password" id="confirm-password" name="confirmpassword" class="form-control"
+                           placeholder="Repeat your password" minlength="5" required>
+                    <button class="btn btn-outline-secondary" type="button"
+                            onclick="togglePassword('confirm-password', this)">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
                 <div class="invalid-feedback">
                     Passwords do not match. Please enter the same password.
                 </div>
+            </div>
 
+            <!-- Dynamic Fields Shown When Role is Selected -->
+            <div id="common-fields" class="mb-3 d-none">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number"
+                       required>
+
+                <label for="dob" class="form-label mt-3">Date of Birth</label>
+                <input type="date" id="dob" name="dob" class="form-control" required>
+
+                <label for="address" class="form-label mt-3">Address</label>
+                <input type="text" id="address" name="address" class="form-control" placeholder="Enter your address"
+                       required>
+            </div>
+
+            <div id="doctor-fields" class="mb-3 d-none">
+                <label for="speciality" class="form-label">Speciality</label>
+                <select id="speciality" name="speciality" class="form-select" required>
+                    <option value="">Select Speciality</option>
+                    <option value="Pediatrics & Newborn">Pediatrics & Newborn</option>
+                    <option value="Internal Medicine">Internal Medicine</option>
+                    <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
+                    <option value="Dentistry">Dentistry</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Orthopedics">Orthopedics</option>
+                    <option value="ENT">ENT</option>
+                    <option value="General Surgery">General Surgery</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Ophthalmology">Ophthalmology</option>
+                    <option value="Oncology">Oncology</option>
+                </select>
+
+                <label for="experience" class="form-label mt-3">Experience (Years)</label>
+                <input type="number" id="experience" name="experience" class="form-control"
+                       placeholder="Enter experience in years" min="0" required>
             </div>
 
             <!-- Submit Button -->
@@ -116,7 +174,55 @@
 </script>
 <script src="{% static 'script/home.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const roleField = document.getElementById('role');
+    const commonFields = document.getElementById('common-fields');
+    const doctorFields = document.getElementById('doctor-fields');
+    const dobInput = document.getElementById('dob');
 
+    // Restrict future DOBs
+    const today = new Date().toISOString().split("T")[0];
+    dobInput.max = today;
 
+    roleField.addEventListener('change', function () {
+        const role = this.value;
+
+        if (role === 'patient') {
+            commonFields.classList.remove('d-none');
+            doctorFields.classList.add('d-none');
+
+            // Remove required from doctor-only fields
+            document.getElementById('speciality').required = false;
+            document.getElementById('experience').required = false;
+        } else if (role === 'doctor') {
+            commonFields.classList.remove('d-none');
+            doctorFields.classList.remove('d-none');
+
+            // Add required to doctor-only fields
+            document.getElementById('speciality').required = true;
+            document.getElementById('experience').required = true;
+        } else {
+            commonFields.classList.add('d-none');
+            doctorFields.classList.add('d-none');
+        }
+    });
+</script>
+<script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = "password";
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+</script>
 </body>
 </html>

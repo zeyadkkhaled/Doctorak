@@ -52,6 +52,7 @@ def register(request):
         return redirect('home')
 
     if request.method == 'POST':
+
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
         email = request.POST['email']
@@ -73,12 +74,7 @@ def register(request):
                     email=email,
                     password=password,
                     role='doctor',
-                    gender=gender,
-                    dob=dob,
-                    phone=phone_number,
-                    address=address,
-                    speciality=speciality,
-                    experience=experience,
+
                 )
 
                 # Create Doctor profile
@@ -86,6 +82,12 @@ def register(request):
                     user=user,
                     f_name=first_name,
                     l_name=last_name,
+                    gender=gender,
+                    dob=dob,
+                    phone=phone_number,
+                    address=address,
+                    speciality=speciality,
+                    experience=experience,
 
 
                 )

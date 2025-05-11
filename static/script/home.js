@@ -1,8 +1,29 @@
 //temp header we footer
-            class myheader extends HTMLElement {
-                connectedCallback() {
-                this.innerHTML = `
-                    
+function updateHeaderButton() {
+    const profileButton = document.getElementById('profileButton');
+    const profileButtonText = document.getElementById('profileButtonText');
+    const isAuthenticated = document.body.dataset.userAuthenticated === 'true';
+
+    if (isAuthenticated) {
+        // Remove modal attributes
+        profileButton.removeAttribute('data-bs-toggle');
+        profileButton.removeAttribute('data-bs-target');
+        profileButton.removeAttribute('aria-controls');
+
+        // Update text and add logout functionality
+        profileButtonText.textContent = 'Logout';
+        profileButton.onclick = () => window.location.href = '/logout/';
+    }
+}
+
+// Add this line right after the function definition
+document.addEventListener('DOMContentLoaded', updateHeaderButton);
+
+// Rest of your code (myheader class definition, etc.) follows...
+
+class myheader extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
             <!-- Header -->
             <div class="h">
             <div class=" py-2 px-3 d-flex justify-content-between align-items-center">
@@ -119,15 +140,16 @@
                 </div>
             
                 `;
-                }
-            }
-            customElements.define('my-header', myheader);
+        updateHeaderButton();
+    }
+}
+
+customElements.define('my-header', myheader);
 
 
-            class mysheader extends HTMLElement {
-                connectedCallback() {
-                this.innerHTML = `
-                    
+class mysheader extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
             <!-- Header -->
             <div class="h">
             <div class=" py-2 px-3 d-flex justify-content-between align-items-center">
@@ -203,15 +225,16 @@
                 </div>
             
                 `;
-                }
-            }
-            customElements.define('my-sheader', mysheader);
+        updateHeaderButton();
+    }
+}
+
+customElements.define('my-sheader', mysheader);
 
 
-
-            class myfooter extends HTMLElement {
-                connectedCallback() {
-                this.innerHTML = `
+class myfooter extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
                         <footer class="text-center">
                     <div class="container">
                         <p style="margin: 5px;"><strong>Contact Us</strong></p>
@@ -226,256 +249,284 @@
                     </div>
                 </footer>
                 `;
-                }
-            }
-            customElements.define('my-footer', myfooter);
+    }
+}
+
+customElements.define('my-footer', myfooter);
 
 
 //7war lama ydos book yktb esm el dr.
 
 
-            document.querySelectorAll('.book-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                const doctorName = this.getAttribute('data-doctor');
-                const doctorInput = document.getElementById('doctorName');
-                if (doctorInput && doctorName) {
-                    doctorInput.value = doctorName;
-                }
-                });
-            });
+document.querySelectorAll('.book-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        const doctorName = this.getAttribute('data-doctor');
+        const doctorInput = document.getElementById('doctorName');
+        if (doctorInput && doctorName) {
+            doctorInput.value = doctorName;
+        }
+    });
+});
 
 
-            document.querySelectorAll('.specialty-card').forEach(card => {
-                card.style.cursor = 'pointer';
-                card.addEventListener('click', () => {
-                const specialty = encodeURIComponent(card.getAttribute('data-specialty'));
-                window.location.href = `spec.html?specialty=${specialty}`;
-                });
-            });
+document.querySelectorAll('.specialty-card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+        const specialty = encodeURIComponent(card.getAttribute('data-specialty'));
+        window.location.href = `spec.html?specialty=${specialty}`;
+    });
+});
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const specialty = urlParams.get('specialty');
-            console.log("Searching for doctors in:", specialty);
+const urlParams = new URLSearchParams(window.location.search);
+const specialty = urlParams.get('specialty');
+console.log("Searching for doctors in:", specialty);
 
 //7war el region
-        document.addEventListener("DOMContentLoaded", function() {
-            const cityOptions = {
-            egypt: ["Cairo", "Alexandria", "Giza", "Luxor", "Aswan"],
-            saudi: ["Riyadh", "Jeddah", "Dammam", "Medina", "Mecca"]
-            };
-        
-            const regionOptions = {
-            Cairo: ["Nasr City", "Heliopolis", "Maadi"],
-            Alexandria: ["Sidi Gaber", "Gleem", "Smouha"],
-            Giza: ["Dokki", "Mohandessin", "Faisal"],
-            Riyadh: ["Olaya", "Al Malaz", "King Fahd District"],
-            Jeddah: ["Al Andalus", "Al Hamra", "Al Faisaliyah"],
-            Dammam: ["Al Faisaliyah", "Al Khobar", "Al Mazruiyah"]
-            };
-        
-            const countrySelect = document.getElementById("country");
-            const citySelect = document.getElementById("city");
-            const regionSelect = document.getElementById("region");
-        
-            // Disable city and region dropdowns initially
-            citySelect.disabled = true;
-            regionSelect.disabled = true;
-        
-            // Populate cities based on selected country
-            countrySelect.addEventListener("change", function() {
-            const country = countrySelect.value;
-        
-            // Reset and disable city and region dropdowns
-            citySelect.innerHTML = `<option value="">Select City</option>`;
-            regionSelect.innerHTML = `<option value="">Select Region</option>`;
-            citySelect.disabled = !country;
-            regionSelect.disabled = true;
-        
-            // Populate cities if a valid country is selected
-            if (cityOptions[country]) {
-                cityOptions[country].forEach(function(city) {
+document.addEventListener("DOMContentLoaded", function () {
+   const cityOptions = {
+    egypt: [
+        "Cairo",
+        "Alexandria",
+        "Giza",
+        "Dakahlia",
+        "Sharqia",
+        "Qalyubia",
+        "Sohag",
+        "Assiut"
+    ],
+    saudi: [
+        "Riyadh",
+        "Jeddah",
+        "Dammam",
+        "Mecca",
+        "Medina",
+        "Khobar"
+    ]
+};
+
+const regionOptions = {
+    Cairo: ["Nasr City", "Heliopolis", "Maadi", "Zamalek", "New Cairo", "Shubra", "Mokattam"],
+    Alexandria: ["Sidi Gaber", "Gleem", "Smouha", "Mandara", "Agami", "Stanley"],
+    Giza: ["Dokki", "Mohandessin", "Faisal", "Haram", "6th of October", "Sheikh Zayed"],
+    Dakahlia: ["Mansoura", "Talkha", "Mit Ghamr"],
+    Sharqia: ["Zagazig", "10th of Ramadan", "Belbeis"],
+    Qalyubia: ["Banha", "Qalyub", "Shubra El Kheima"],
+    Sohag: ["Sohag City", "Tahta", "Akhmim"],
+    Assiut: ["Assiut City", "Manfalut", "Dairut"],
+
+    Riyadh: ["Olaya", "Al Malaz", "King Fahd District", "Al Nakheel", "Al Murabba", "Al Yasmin"],
+    Jeddah: ["Al Andalus", "Al Hamra", "Al Faisaliyah", "Al Rawdah", "Al Salamah", "Al Safa"],
+    Dammam: ["Al Faisaliyah", "Al Shati", "Al Mazruiyah", "Al Khalij"],
+    Mecca: ["Al Aziziyah", "Al Shoqiyah", "Al Awali"],
+    Medina: ["Al Haram", "Al Qiblatain", "Al Aqiq"],
+    Khobar: ["Al Ulaya", "Al Aqrabiyah", "Al Thuqbah"]
+};
+
+
+    const countrySelect = document.getElementById("country");
+    const citySelect = document.getElementById("city");
+    const regionSelect = document.getElementById("region");
+
+    // Disable city and region dropdowns initially
+    citySelect.disabled = true;
+    regionSelect.disabled = true;
+
+    // Populate cities based on selected country
+    countrySelect.addEventListener("change", function () {
+        const country = countrySelect.value;
+
+        // Reset and disable city and region dropdowns
+        citySelect.innerHTML = `<option value="">Select City</option>`;
+        regionSelect.innerHTML = `<option value="">Select Region</option>`;
+        citySelect.disabled = !country;
+        regionSelect.disabled = true;
+
+        // Populate cities if a valid country is selected
+        if (cityOptions[country]) {
+            cityOptions[country].forEach(function (city) {
                 const option = document.createElement("option");
                 option.value = city;
                 option.text = city;
                 citySelect.appendChild(option);
-                });
-            }
             });
-        
-            // Populate regions based on selected city
-            citySelect.addEventListener("change", function() {
-            const city = citySelect.value;
-            const country = countrySelect.value;
-        
-            // Reset and disable region dropdown
-            regionSelect.innerHTML = `<option value="">Select Region</option>`;
-            regionSelect.disabled = !city;
-        
-            // Validate that the city belongs to the selected country
-            if (city && country && cityOptions[country]?.includes(city)) {
-                if (regionOptions[city]) {
-                regionOptions[city].forEach(function(region) {
+        }
+    });
+
+    // Populate regions based on selected city
+    citySelect.addEventListener("change", function () {
+        const city = citySelect.value;
+        const country = countrySelect.value;
+
+        // Reset and disable region dropdown
+        regionSelect.innerHTML = `<option value="">Select Region</option>`;
+        regionSelect.disabled = !city;
+
+        // Validate that the city belongs to the selected country
+        if (city && country && cityOptions[country]?.includes(city)) {
+            if (regionOptions[city]) {
+                regionOptions[city].forEach(function (region) {
                     const option = document.createElement("option");
                     option.value = region;
                     option.text = region;
                     regionSelect.appendChild(option);
                 });
-                }
             }
-            });
+        }
+    });
+});
+
+
+//sort card
+function sortCards() {
+    const sortOption = document.getElementById('sortOption').value;
+    const grid = document.getElementById('doctorGrid');
+    const cards = Array.from(grid.getElementsByClassName('card'));
+
+    if (sortOption === 'nearest') {
+        cards.sort((a, b) => {
+            const originalOrderA = cards.indexOf(a);
+            const originalOrderB = cards.indexOf(b);
+            return originalOrderA - originalOrderB;
         });
-
-
-  //sort card
-        function sortCards() {
-            const sortOption = document.getElementById('sortOption').value;
-            const grid = document.getElementById('doctorGrid');
-            const cards = Array.from(grid.getElementsByClassName('card'));
-
-            if (sortOption === 'nearest') {
-                cards.sort((a, b) => {
-                    const originalOrderA = cards.indexOf(a);
-                    const originalOrderB = cards.indexOf(b);
-                    return originalOrderA - originalOrderB;
-                });
-            } else if (sortOption === 'cost-asc') {
-                cards.sort((a, b) => {
-                    const costA = parseInt(a.getAttribute('data-cost'));
-                    const costB = parseInt(b.getAttribute('data-cost'));
-                    return costA - costB;
-                });
-            } else if (sortOption === 'cost-desc') {
-                cards.sort((a, b) => {
-                    const costA = parseInt(a.getAttribute('data-cost'));
-                    const costB = parseInt(b.getAttribute('data-cost'));
-                    return costB - costA;
-                });
-            } else if (sortOption === 'stars-desc') {
-                cards.sort((a, b) => {
-                    const starsA = parseInt(a.getAttribute('data-stars'));
-                    const starsB = parseInt(b.getAttribute('data-stars'));
-                    return starsB - starsA;
-                });
-            }
-
-            grid.innerHTML = '';
-            cards.forEach(card => grid.appendChild(card));
+    } else if (sortOption === 'cost-asc') {
+        cards.sort((a, b) => {
+            const costA = parseInt(a.getAttribute('data-cost'));
+            const costB = parseInt(b.getAttribute('data-cost'));
+            return costA - costB;
+        });
+    } else if (sortOption === 'cost-desc') {
+        cards.sort((a, b) => {
+            const costA = parseInt(a.getAttribute('data-cost'));
+            const costB = parseInt(b.getAttribute('data-cost'));
+            return costB - costA;
+        });
+    } else if (sortOption === 'stars-desc') {
+        cards.sort((a, b) => {
+            const starsA = parseInt(a.getAttribute('data-stars'));
+            const starsB = parseInt(b.getAttribute('data-stars'));
+            return starsB - starsA;
+        });
     }
+
+    grid.innerHTML = '';
+    cards.forEach(card => grid.appendChild(card));
+}
+
 //bycheck password of signup
-        const form = document.querySelector('.signup-form');
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirm-password');
+const form = document.querySelector('.signup-form');
+const password = document.getElementById('password');
+const confirmPassword = document.getElementById('confirm-password');
 
-        form.addEventListener('submit', function (e) {
-        // Check if passwords match
-        if (password.value !== confirmPassword.value) {
-            e.preventDefault();
-            confirmPassword.classList.add('is-invalid');
-        } else {
-            confirmPassword.classList.remove('is-invalid');
-        }
-        });
+form.addEventListener('submit', function (e) {
+    // Check if passwords match
+    if (password.value !== confirmPassword.value) {
+        e.preventDefault();
+        confirmPassword.classList.add('is-invalid');
+    } else {
+        confirmPassword.classList.remove('is-invalid');
+    }
+});
 
-        // Live correction
-        confirmPassword.addEventListener('input', function () {
-        if (password.value === confirmPassword.value) {
-            confirmPassword.classList.remove('is-invalid');
-        }
-        });
+// Live correction
+confirmPassword.addEventListener('input', function () {
+    if (password.value === confirmPassword.value) {
+        confirmPassword.classList.remove('is-invalid');
+    }
+});
 
 //by edit pp
-            function updateProfilePicture() {
-                const fileInput = document.getElementById('editProfilePic');
-                const profilePicture = document.getElementById('profilePicture');
-                const file = fileInput.files[0];
+function updateProfilePicture() {
+    const fileInput = document.getElementById('editProfilePic');
+    const profilePicture = document.getElementById('profilePicture');
+    const file = fileInput.files[0];
 
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        profilePicture.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            profilePicture.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
 
-            document.getElementById('saveChanges').addEventListener('click', function() {
-                const name = document.getElementById('inputName').value;
-                const age = document.getElementById('inputAge').value;
-                const gender = document.getElementById('inputGender').value;
-                const contact = document.getElementById('inputContact').value;
-                const address = document.getElementById('inputAddress').value;
+document.getElementById('saveChanges').addEventListener('click', function () {
+    const name = document.getElementById('inputName').value;
+    const age = document.getElementById('inputAge').value;
+    const gender = document.getElementById('inputGender').value;
+    const contact = document.getElementById('inputContact').value;
+    const address = document.getElementById('inputAddress').value;
 
-                document.getElementById('displayName').innerText = name;
-                document.getElementById('displayAge').innerText = age;
-                document.getElementById('displayGender').innerText = gender;
+    document.getElementById('displayName').innerText = name;
+    document.getElementById('displayAge').innerText = age;
+    document.getElementById('displayGender').innerText = gender;
 
-                const modal = bootstrap.Modal.getInstance(document.getElementById('editInfoModal'));
-                modal.hide();
-            });
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editInfoModal'));
+    modal.hide();
+});
 
-            document.getElementById('scheduleAppointment').addEventListener('click', function() {
-                // Get values from the form
-                const date = document.getElementById('appointmentDate').value;
-                const time = document.getElementById('appointmentTime').value;
-                const doctor = document.getElementById('doctorName').value;
+document.getElementById('scheduleAppointment').addEventListener('click', function () {
+    // Get values from the form
+    const date = document.getElementById('appointmentDate').value;
+    const time = document.getElementById('appointmentTime').value;
+    const doctor = document.getElementById('doctorName').value;
 
-                // Validate inputs
-                if (!date || !time || !doctor) {
-                    alert('Please fill in all fields.');
-                    return;
-                }
+    // Validate inputs
+    if (!date || !time || !doctor) {
+        alert('Please fill in all fields.');
+        return;
+    }
 
-                // Create a new row in the appointments table
-                const table = document.getElementById('appointmentsTable').getElementsByTagName('tbody')[0];
-                const newRow = table.insertRow();
+    // Create a new row in the appointments table
+    const table = document.getElementById('appointmentsTable').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
 
-                // Insert new cells for the new row
-                const dateCell = newRow.insertCell(0);
-                const timeCell = newRow.insertCell(1);
-                const doctorCell = newRow.insertCell(2);
-                const statusCell = newRow.insertCell(3);
-                const actionCell = newRow.insertCell(4);
+    // Insert new cells for the new row
+    const dateCell = newRow.insertCell(0);
+    const timeCell = newRow.insertCell(1);
+    const doctorCell = newRow.insertCell(2);
+    const statusCell = newRow.insertCell(3);
+    const actionCell = newRow.insertCell(4);
 
-                // Set the cell values
-                dateCell.innerText = date;
-                timeCell.innerText = time;
-                doctorCell.innerText = doctor;
-                statusCell.innerText = 'Pending'; // Default status
+    // Set the cell values
+    dateCell.innerText = date;
+    timeCell.innerText = time;
+    doctorCell.innerText = doctor;
+    statusCell.innerText = 'Pending'; // Default status
 
-                // Create a cancel button
-                const cancelButton = document.createElement('button');
-                cancelButton.innerText = 'Cancel';
-                cancelButton.className = 'btn btn-danger btn-sm cancel-appointment';
-                cancelButton.onclick = function() {
-                    table.deleteRow(newRow.rowIndex - 1); // Remove the row from the table
-                };
+    // Create a cancel button
+    const cancelButton = document.createElement('button');
+    cancelButton.innerText = 'Cancel';
+    cancelButton.className = 'btn btn-danger btn-sm cancel-appointment';
+    cancelButton.onclick = function () {
+        table.deleteRow(newRow.rowIndex - 1); // Remove the row from the table
+    };
 
-                // Append the cancel button to the action cell
-                actionCell.appendChild(cancelButton);
+    // Append the cancel button to the action cell
+    actionCell.appendChild(cancelButton);
 
-                // Close the modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('makeAppointmentModal'));
-                modal.hide();
+    // Close the modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('makeAppointmentModal'));
+    modal.hide();
 
-                // Clear the form inputs
-                document.getElementById('makeAppointmentForm').reset();
-            });
-       
+    // Clear the form inputs
+    document.getElementById('makeAppointmentForm').reset();
+});
+
 //by7sb el 3omr mn data of birth
 
-    document.getElementById('dob').addEventListener('change', function () {
-        const dob = new Date(this.value);
-        const today = new Date();
+document.getElementById('dob').addEventListener('change', function () {
+    const dob = new Date(this.value);
+    const today = new Date();
 
-        let age = today.getFullYear() - dob.getFullYear();
-        const m = today.getMonth() - dob.getMonth();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
 
-        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
         age--;
-        }
+    }
 
-        // Update the displayAge span with calculated age
-        document.getElementById('displayAge').textContent = age;
-    });
+    // Update the displayAge span with calculated age
+    document.getElementById('displayAge').textContent = age;
+});
 
 //byedit info el 3yada

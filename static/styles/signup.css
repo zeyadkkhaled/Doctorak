@@ -1,4 +1,4 @@
-/* signup.styles */
+/* signup.css */
 footer {
     background-color: #00c4b4; /* Blue background for the footer */
     color: white;
@@ -40,16 +40,16 @@ body {
     background-color: #e8fffc;
     padding: 0px;
     margin:0px;
-   
-   
+
+
   }
   .main{
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 30px;
+    padding: 30 px;
   }
-  
+
   .signup-container {
     background-color: #ffffff;
     padding: 2rem 2.5rem;
@@ -58,20 +58,20 @@ body {
     width: 100%;
     max-width: 600px;
   }
-  
+
   .signup-form h2 {
     text-align: center;
     color: #007b8a;
     margin-bottom: 1.5rem;
   }
-  
+
   .signup-form label {
     display: block;
     margin-bottom: 6px;
     font-weight: 600;
     color: #333;
   }
-  
+
   .signup-form input {
     width: 100%;
     padding: 10px 12px;
@@ -81,12 +81,12 @@ body {
     font-size: 15px;
     transition: border 0.3s;
   }
-  
+
   .signup-form input:focus {
     border-color: #007b8a;
     outline: none;
   }
-  
+
   .signup-form button {
     width: 100%;
     padding: 12px;
@@ -98,24 +98,59 @@ body {
     cursor: pointer;
     transition: background-color 0.3s;
   }
-  
+
   .signup-form button:hover {
     background-color: #005f6b;
   }
-  
+
   .signin-link {
     text-align: center;
     margin-top: 1rem;
     font-size: 14px;
   }
-  
+
   .signin-link a {
     color: #007b8a;
     text-decoration: none;
   }
-  
+
   .signin-link a:hover {
     text-decoration: underline;
   }
 
-  
+  .input-group .btn i {
+    font-size: 1.1rem;
+    vertical-align: middle;
+  }
+
+  /* Optional: make sure button height matches input */
+  .input-group .btn {
+    padding: 0 0.5rem;
+  }
+  .input-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .input-group input.form-control {
+    flex: 1 1 auto;
+    width: 1%;
+    margin-bottom: 0 !important;
+  }
+
+  .input-group .btn {
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 40px; /* Set the width of the eye button */
+  }
+
+  .input-group .btn i {
+    margin-left: 2px;
+    margin-right: 2px;
+    font-size: 1rem;
+    vertical-align: middle;
+  }

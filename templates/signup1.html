@@ -1,0 +1,494 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Doctorak - Doctor Booking</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href={% static 'styles/signup.css' %}>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'imgs/logoso88.png' %}" type="image/x-icon"/>
+</head>
+
+<body>
+<my-sheader></my-sheader>
+
+<div class="main py-5">
+    <div class="signup-container mx-auto">
+        <form class="signup-form" method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+            {% if message %}
+                <div class="alert alert-danger text-center" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+
+            <div class="d-flex align-items-center mb-4">
+                <a href="/" class="text-decoration-none me-2 text-dark">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                </a>
+                <h2 class="mb-0">Create an Account</h2>
+            </div>
+
+            <!-- Full Name -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="firstname" class="form-label">First Name</label>
+                    <input type="text" id="firstname" name="first_name" class="form-control"
+                           placeholder="Enter your first name"
+                           required>
+                </div>
+                <div class="col-md-6">
+                    <label for="lastname" class="form-label">Last Name</label>
+                    <input type="text" id="lastname" name="last_name" class="form-control"
+                           placeholder="Enter your last name"
+                           required>
+                </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gender</label>
+                <select id="gender" name="gender" class="form-select" required>
+                    <option value="" disabled selected>Select your Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+
+            <!-- Role -->
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select id="role" name="role" class="form-select" required>
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="patient">Patient</option>
+                </select>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email"
+                       required>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control"
+                           placeholder="Create a password" minlength="5" required>
+                    <button class="btn btn-outline-secondary" type="button"
+                            onclick="togglePassword('password', this)">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+                <label for="confirm-password" class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <input type="password" id="confirm-password" name="confirmpassword" class="form-control"
+                           placeholder="Repeat your password" minlength="5" required>
+                    <button class="btn btn-outline-secondary" type="button"
+                            onclick="togglePassword('confirm-password', this)">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <div class="invalid-feedback">
+                    Passwords do not match. Please enter the same password.
+                </div>
+            </div>
+
+            <!-- Dynamic Fields -->
+            <div id="common-fields" class="mb-3 d-none">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number"
+                       required>
+
+                <label for="dob" class="form-label mt-3">Date of Birth</label>
+                <input type="date" id="dob" name="dob" class="form-control" required>
+
+                <label for="address" class="form-label mt-3">Address</label>
+                <input type="text" id="address" name="address" class="form-control" placeholder="Enter your address"
+                       required>
+            </div>
+
+            <div id="doctor-fields" class="mb-3 d-none">
+                <h3 class="mb-3">Doctor Information</h3>
+                <label for="speciality" class="form-label">Speciality</label>
+                <select id="speciality" name="speciality" class="form-select" required>
+                    <option value="">Select Speciality</option>
+                    <option value="Pediatrics & Newborn">Pediatrics & Newborn</option>
+                    <option value="Internal Medicine">Internal Medicine</option>
+                    <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
+                    <option value="Dentistry">Dentistry</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Orthopedics">Orthopedics</option>
+                    <option value="ENT">ENT</option>
+                    <option value="General Surgery">General Surgery</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Ophthalmology">Ophthalmology</option>
+                    <option value="Oncology">Oncology</option>
+                </select>
+
+                <label for="experience" class="form-label mt-3">Experience (Years)</label>
+                <input type="number" id="experience" name="experience" class="form-control"
+                       placeholder="Enter experience in years" min="0" required>
+            </div>
+
+            <div id="clinic-fields" class="mb-3 d-none">
+                <h3 class="mb-3">Clinic Information</h3>
+                <label for="clinic-name" class="form-label">Clinic Name</label>
+                <input type="text" id="clinic-name" name="clinic_name" class="form-control"
+                       placeholder="Enter your clinic name" required>
+
+                <label class="form-label mt-3">Clinic Location</label>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label for="country" class="form-label">Country</label>
+                        <select id="country" name="country" class="form-select" required>
+                            <option value="">Select Country</option>
+                            <option value="egypt">Egypt</option>
+                            <option value="saudi">Saudi Arabia</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="city" class="form-label">City</label>
+                        <select id="city" name="city" class="form-select" disabled required>
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="region" class="form-label">Region</label>
+                        <select id="region" name="region" class="form-select" disabled required>
+                            <option value="">Select Region</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label for="clinic-phone" class="form-label mt-3">Clinic Phone Number</label>
+                <input type="tel" id="clinic-phone" name="clinic_phone" class="form-control"
+                       placeholder="Enter your clinic phone number" required>
+
+                <label class="form-label mt-3">Working Days and Hours</label>
+                <div id="working-days-container">
+                    <div class="mb-3">
+                        <label class="form-label">Select Working Days</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2 working-day-checkbox" type="checkbox" id="dayMonday"
+                                       value="Monday" style="width: 16px; height: 16px;">
+                                <input type="time" name="monday_start" class="form-control" style="display:none;">
+                                <input type="time" name="monday_end" class="form-control" style="display:none;">
+                                <label class="form-check-label" for="dayMonday">Monday</label>
+                            </div>
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2 working-day-checkbox" type="checkbox"
+                                       id="dayTuesday" value="Tuesday" style="width: 16px; height: 16px;">
+                                <input type="time" name="tuesday_start" class="form-control" style="display:none;">
+                                <input type="time" name="tuesday_end" class="form-control" style="display:none;">
+                                <label class="form-check-label" for="dayTuesday">Tuesday</label>
+                            </div>
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2 working-day-checkbox" type="checkbox"
+                                       id="dayWednesday" value="Wednesday" style="width: 16px; height: 16px;">
+                                <input type="time" name="wednesday_start" class="form-control" style="display:none;">
+                                <input type="time" name="wednesday_end" class="form-control" style="display:none;">
+                                <label class="form-check-label" for="dayWednesday">Wednesday</label>
+                            </div>
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2 working-day-checkbox" type="checkbox"
+                                       id="dayThursday" value="Thursday" style="width: 16px; height: 16px;">
+                                <input type="time" name="thursday_start" class="form-control" style="display:none;">
+                                <input type="time" name="thursday_end" class="form-control" style="display:none;">
+                                <label class="form-check-label" for="dayThursday">Thursday</label>
+                            </div>
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2 working-day-checkbox" type="checkbox" id="dayFriday"
+                                       value="Friday" style="width: 16px; height: 16px;">
+                                <input type="time" name="friday_start" class="form-control" style="display:none;">
+                                <input type="time" name="friday_end" class="form-control" style="display:none;">
+                                <label class="form-check-label" for="dayFriday">Friday</label>
+                            </div>
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2 working-day-checkbox" type="checkbox"
+                                       id="daySaturday" value="Saturday" style="width: 16px; height: 16px;">
+                                <input type="time" name="saturday_start" class="form-control" style="display:none;">
+                                <input type="time" name="saturday_end" class="form-control" style="display:none;">
+                                <label class="form-check-label" for="daySaturday">Saturday</label>
+                            </div>
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2 working-day-checkbox" type="checkbox" id="daySunday"
+                                       value="Sunday" style="width: 16px; height: 16px;">
+                                <input type="time" name="sunday_start" class="form-control" style="display:none;">
+                                <input type="time" name="sunday_end" class="form-control" style="display:none;">
+                                <label class="form-check-label" for="daySunday">Sunday</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="mt-3">
+                        <label class="form-label">Set Working Hours</label>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-5">
+                                <input type="time" id="working-hours-start" class="form-control"
+                                       placeholder="Start Time">
+                            </div>
+                            <div class="col-md-5">
+                                <input type="time" id="working-hours-end" class="form-control" placeholder="End Time">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" id="apply-hours" class="btn btn-primary">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="selected-days-container" class="mt-3">
+                    <!-- Template for hidden inputs -->
+                    <template id="working-hours-template">
+                        <input type="hidden" name="{day}_start" value="">
+                        <input type="hidden" name="{day}_end" value="">
+                    </template>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+
+            <!-- Sign In Link -->
+            <p class="text-center mt-3">Already have an account?
+                <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#loginModal"
+                   aria-controls="loginModal">Sign In</a></p>
+        </form>
+    </div>
+</div>
+
+<my-footer></my-footer>
+
+<script>
+    const static_url = "{% static '' %}";
+    const LOGIN_URL = "{% url 'login' %}";
+    const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+
+<script src="{% static 'script/home.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const roleField = document.getElementById('role');
+    const commonFields = document.getElementById('common-fields');
+    const doctorFields = document.getElementById('doctor-fields');
+    const clinicFields = document.getElementById('clinic-fields');
+    const dobInput = document.getElementById('dob');
+    const workingDaysCheckboxes = document.querySelectorAll('.working-day-checkbox');
+    const workingHoursStart = document.getElementById('working-hours-start');
+    const workingHoursEnd = document.getElementById('working-hours-end');
+    const applyHoursButton = document.getElementById('apply-hours');
+    const selectedDaysContainer = document.getElementById('selected-days-container');
+
+    const today = new Date().toISOString().split("T")[0];
+    dobInput.max = today;
+
+    roleField.addEventListener('change', function () {
+        const role = this.value;
+
+        // Helper function to toggle required for all inputs/selects inside a container
+        function toggleRequired(container, isRequired) {
+            if (!container) return;
+            container.querySelectorAll('input, select, textarea').forEach(el => {
+                if (isRequired) {
+                    el.setAttribute('required', 'required');
+                } else {
+                    el.removeAttribute('required');
+                }
+            });
+        }
+
+        if (role === 'patient') {
+            commonFields.classList.remove('d-none');
+            doctorFields.classList.add('d-none');
+            clinicFields.classList.add('d-none');
+
+            toggleRequired(commonFields, true);
+            toggleRequired(doctorFields, false);
+            toggleRequired(clinicFields, false);
+        } else if (role === 'doctor') {
+            commonFields.classList.remove('d-none');
+            doctorFields.classList.remove('d-none');
+            clinicFields.classList.remove('d-none');
+
+            toggleRequired(commonFields, true);
+            toggleRequired(doctorFields, true);
+            toggleRequired(clinicFields, true);
+        } else {
+            // No role selected
+            commonFields.classList.add('d-none');
+            doctorFields.classList.add('d-none');
+            clinicFields.classList.add('d-none');
+
+            toggleRequired(commonFields, false);
+            toggleRequired(doctorFields, false);
+            toggleRequired(clinicFields, false);
+        }
+    });
+
+
+    applyHoursButton.addEventListener('click', function () {
+        const selectedDays = Array.from(workingDaysCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+
+        const startTime = workingHoursStart.value;
+        const endTime = workingHoursEnd.value;
+
+        if (selectedDays.length === 0) {
+            alert('Please select at least one day.');
+            return;
+        }
+
+        if (!startTime || !endTime) {
+            alert('Please specify both start and end times.');
+            return;
+        }
+
+        selectedDays.forEach(day => {
+            const dayLower = day.toLowerCase();
+
+            // Get the actual time input elements
+            const startInput = document.querySelector(`input[name="${dayLower}_start"]`);
+            const endInput = document.querySelector(`input[name="${dayLower}_end"]`);
+
+            // Set the values
+            startInput.value = startTime;
+            endInput.value = endTime;
+
+            // Remove d-none class to make inputs active
+            startInput.classList.remove('d-none');
+            endInput.classList.remove('d-none');
+
+            // Update visual display
+            let dayEntry = document.getElementById(`selected-${day}`);
+            if (!dayEntry) {
+                dayEntry = document.createElement('div');
+                dayEntry.id = `selected-${day}`;
+                dayEntry.classList.add('mb-2');
+                selectedDaysContainer.appendChild(dayEntry);
+            }
+            dayEntry.innerHTML = `<strong>${day}:</strong> ${startTime} - ${endTime}`;
+        });
+
+        // Clear checkboxes
+        workingDaysCheckboxes.forEach(checkbox => checkbox.checked = false);
+        workingHoursStart.value = '';
+        workingHoursEnd.value = '';
+    });
+    document.querySelector('form').addEventListener('submit', function (event) {
+        const selectedDays = Array.from(selectedDaysContainer.children).map(entry => entry.id.replace('selected-', ''));
+
+        if (roleField.value === 'doctor' && selectedDays.length === 0) {
+            event.preventDefault();
+            alert('Please select at least one working day and specify working hours.');
+        } else {
+            console.log('Selected Days:', selectedDays);
+        }
+    });
+
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = "password";
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    // Initialize location dropdowns using home.js functionality
+    document.addEventListener("DOMContentLoaded", function () {
+        const cityOptions = {
+            egypt: ["Cairo", "Alexandria", "Giza", "Luxor", "Aswan"],
+            saudi: ["Riyadh", "Jeddah", "Dammam", "Medina", "Mecca"]
+        };
+
+        const regionOptions = {
+            Cairo: ["Nasr City", "Heliopolis", "Maadi"],
+            Alexandria: ["Sidi Gaber", "Gleem", "Smouha"],
+            Giza: ["Dokki", "Mohandessin", "Faisal"],
+            Riyadh: ["Olaya", "Al Malaz", "King Fahd District"],
+            Jeddah: ["Al Andalus", "Al Hamra", "Al Faisaliyah"],
+            Dammam: ["Al Faisaliyah", "Al Khobar", "Al Mazruiyah"]
+        };
+
+        const countrySelect = document.getElementById("country");
+        const citySelect = document.getElementById("city");
+        const regionSelect = document.getElementById("region");
+
+        // Disable city and region dropdowns initially
+        citySelect.disabled = true;
+        regionSelect.disabled = true;
+
+        // Populate cities based on selected country
+        countrySelect.addEventListener("change", function () {
+            const country = countrySelect.value;
+
+            // Reset and disable city and region dropdowns
+            citySelect.innerHTML = `<option value="">Select City</option>`;
+            regionSelect.innerHTML = `<option value="">Select Region</option>`;
+            regionSelect.disabled = true;
+
+            // Populate cities if a valid country is selected
+            if (cityOptions[country]) {
+                cityOptions[country].forEach(function (city) {
+                    const option = document.createElement("option");
+                    option.value = city;
+                    option.text = city;
+                    citySelect.appendChild(option);
+                });
+                citySelect.disabled = false; // Enable city dropdown
+            } else {
+                citySelect.disabled = true; // Keep city dropdown disabled if no valid options
+            }
+        });
+
+        // Populate regions based on selected city
+        citySelect.addEventListener("change", function () {
+            const city = citySelect.value;
+
+            // Reset and disable region dropdown
+            regionSelect.innerHTML = `<option value="">Select Region</option>`;
+
+            // Populate regions if a valid city is selected
+            if (regionOptions[city]) {
+                regionOptions[city].forEach(function (region) {
+                    const option = document.createElement("option");
+                    option.value = region;
+                    option.text = region;
+                    regionSelect.appendChild(option);
+                });
+                regionSelect.disabled = false; // Enable region dropdown
+            } else {
+                regionSelect.disabled = true; // Keep region dropdown disabled if no valid options
+            }
+        });
+    });
+</script>
+</body>
+</html>

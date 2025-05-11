@@ -10,8 +10,7 @@
     <link rel="stylesheet" href="{% static 'styles/home.css' %}">
   <link rel="icon" href="{% static 'imgs/logoso88.png' %}" type="image/x-icon" />
 </head>
-<body>
-
+<body data-user-authenticated="{{ request.user.is_authenticated|lower }}">
   <my-header></my-header>
 
   <a href="../pages/p-profile.html" class="btn btn-danger mt-2">

@@ -49,7 +49,9 @@ class Clinic(models.Model):
     clinic_id = models.AutoField(primary_key=True)
     clinic_name = models.CharField(max_length=100)
     address = models.TextField()
+    country = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
+    region = models.CharField(max_length=50)
     phone = models.CharField(max_length=20)
     working_hours = models.CharField(max_length=100)
 
@@ -62,7 +64,12 @@ class Clinic(models.Model):
 class Doctor(models.Model):
     doctor_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user_id')
-
+    profile_picture = models.ImageField(
+        upload_to='static/images/doctors/profile_pics/',
+        null=True,
+        blank=True,
+        default='static/images/defaults/default.png'
+    )
     f_name = models.CharField(max_length=50)
     l_name = models.CharField(max_length=50)
     gender = models.CharField(max_length=10)
@@ -82,6 +89,12 @@ class Doctor(models.Model):
 class Patient(models.Model):
     patient_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user_id')
+    profile_picture = models.ImageField(
+        upload_to='static/images/patients/profile_pics/',
+        null=True,
+        blank=True,
+        default='static/images/defaults/default.png'
+    )
     f_name = models.CharField(max_length=50)
     l_name = models.CharField(max_length=50)
     gender = models.CharField(max_length=10)

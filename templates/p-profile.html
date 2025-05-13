@@ -2,31 +2,33 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Doctorak - Doctor Booking</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Doctorak - Doctor Booking</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-  <!-- Custom CSS -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'styles/p-profile.css' %}"/>
-  <!-- Favicon -->
+    <!-- Favicon -->
     <link rel="icon" href="{% static 'imgs/logoso88.png' %}" type="image/x-icon"/>
 </head>
 
-<body>
-  <!-- Header Component -->
-  <my-sheader></my-sheader>
+<body data-user-name="{{ patient.f_name|capfirst }}">
 
-  <div class="container">
+<!-- Header Component -->
+
+<my-patient-header></my-patient-header>
+
+<div class="container">
     <div class="profile-container d-flex">
         <!-- Profile Header -->
         <div class="profile-header text-center bg-white p-3 rounded shadow">
-          <img src="{{ patient.profile_picture.url }}" alt="Profile Picture" id="profilePicture"
+            <img src="{{ patient.profile_picture.url }}" alt="Profile Picture" id="profilePicture"
                  class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
             {% if message %}
                 <div class="alert alert-success" role="alert">
@@ -37,7 +39,7 @@
             <p class="text-muted">Patient ID: {{ patient.patient_id }}</p>
             <div class="d-grid gap-2">
                 <!-- Edit Profile Picture -->
-               <form action="{% url 'change_profile_picture' %}" method="POST" enctype="multipart/form-data"
+                <form action="{% url 'change_profile_picture' %}" method="POST" enctype="multipart/form-data"
                       id="profilePicForm">
                     {% csrf_token %}
                     <label for="profile_picture" class="btn btn-danger">Change Profile Picture</label>
@@ -45,18 +47,25 @@
                            accept="image/*" onchange="submitProfilePic()">
                 </form>
                 <!-- Edit Personal Information Button -->
-                <button class="btn btn-danger mt-2"  id="editPersonalInfo" data-bs-toggle="modal" data-bs-target="#editInfoModal">Edit Personal Info</button>
+                <button class="btn btn-danger mt-2" id="editPersonalInfo" data-bs-toggle="modal"
+                        data-bs-target="#editInfoModal">Edit Personal Info
+                </button>
+                <button class="btn btn-danger mt-2" id="editMedicalHistory" data-bs-toggle="modal"
+                        data-bs-target="#editHistoryModal">Edit Medical History
+                </button>
+
             </div>
         </div>
         <!-- Content -->
         <div class="content flex-grow-1 ms-3">
             <!-- Personal Information -->
             <div class="card">
-                <div class="card-header  text-white" style="background-color: #00c4b4;" >
+                <div class="card-header  text-white" style="background-color: #00c4b4;">
                     Personal Information
                 </div>
                 <div class="card-body">
-                    <p><strong>Name:</strong> <span id="displayName">{{ patient.f_name|capfirst }}</span></p>
+                    <p><strong>Name:</strong> <span
+                            id="displayName">{{ patient.f_name|capfirst }} {{ patient.l_name|capfirst }}</span></p>
                     <p><strong>Patient_ID:</strong> {{ patient.patient_id }}</p>
                     <p><strong>Date of Birth:</strong> <span id="displayDOB">{{ patient.dob }}</span></p>
                     <p><strong>Gender:</strong> <span id="displayGender">{{ patient.gender }}</span></p>
@@ -72,9 +81,13 @@
                 </div>
                 <div class="card-body">
                     <ul>
-                        <li>Allergies: None</li>
-                        <li>Chronic Conditions: Asthma</li>
-                        <li>Past Treatments: Physical Therapy (2022)</li>
+                        <li>Allergies: {{ medicalhistory.allergies }}</li>
+                        <li>Chronic Conditions: {{ medicalhistory.chronic_diseases }}</li>
+                        <li>Past Treatments: {{ medicalhistory.past_illnesses }}</li>
+                        <li>Surgeries: {{ medicalhistory.surgeries }}</li>
+                        <li>Family History: {{ medicalhistory.family_history }}</li>
+                        <li>Other Notes: {{ medicalhistory.other_notes }}</li>
+
                     </ul>
                 </div>
             </div>
@@ -86,32 +99,36 @@
                 <div class="card-body">
                     <table class="table" id="appointmentsTable">
                         <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Doctor</th>
-                                <th>Status</th>
-                                <th>Action</th> <!-- New column for actions -->
-                            </tr>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Doctor</th>
+                            <th>Status</th>
+                            <th>Action</th> <!-- New column for actions -->
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>2023-10-15</td>
-                                <td>10:00 AM</td>
-                                <td>Dr. Smith</td>
-                                <td>Confirmed</td>
-                                <td><button class="btn btn-danger btn-sm cancel-appointment">Cancel</button></td> <!-- Cancel button -->
-                            </tr>
-                            <tr>
-                                <td>2023-11-01</td>
-                                <td>2:00 PM</td>
-                                <td>Dr. Johnson</td>
-                                <td>Pending</td>
-                                <td><button class="btn btn-danger btn-sm cancel-appointment">Cancel</button></td> <!-- Cancel button -->
-                            </tr>
+                        <tr>
+                            <td>2023-10-15</td>
+                            <td>10:00 AM</td>
+                            <td>Dr. Smith</td>
+                            <td>Confirmed</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm cancel-appointment">Cancel</button>
+                            </td> <!-- Cancel button -->
+                        </tr>
+                        <tr>
+                            <td>2023-11-01</td>
+                            <td>2:00 PM</td>
+                            <td>Dr. Johnson</td>
+                            <td>Pending</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm cancel-appointment">Cancel</button>
+                            </td> <!-- Cancel button -->
+                        </tr>
                         </tbody>
                     </table>
-                    
+
                 </div>
             </div>
 
@@ -123,32 +140,32 @@
                 <div class="card-body">
                     <table class="table" id="medicalRecordTable">
                         <thead>
-                            <tr>
-                                <th>Doctor ID</th>
-                                <th>Doctor Name</th>
-                                <th>Diagnosis</th>
-                                <th>Notes</th>
-                                <th>Prescription</th>
-                                <th>Media</th> <!-- New column for media -->
-                            </tr>
+                        <tr>
+                            <th>Doctor ID</th>
+                            <th>Doctor Name</th>
+                            <th>Diagnosis</th>
+                            <th>Notes</th>
+                            <th>Prescription</th>
+                            <th>Media</th> <!-- New column for media -->
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>123</td>
-                                <td>Dr. Smith</td>
-                                <td>Flu</td>
-                                <td>Rest and hydration</td>
-                                <td>Paracetamol</td>
-                                <td><a href="../media/xray1.jpg" target="_blank">View</a></td> <!-- Example media link -->
-                            </tr>
-                            <tr>
-                                <td>456</td>
-                                <td>Dr. Johnson</td>
-                                <td>Back Pain</td>
-                                <td>Physical therapy recommended</td>
-                                <td>Ibuprofen</td>
-                                <td><a href="../media/mri1.jpg" target="_blank">View</a></td> <!-- Example media link -->
-                            </tr>
+                        <tr>
+                            <td>123</td>
+                            <td>Dr. Smith</td>
+                            <td>Flu</td>
+                            <td>Rest and hydration</td>
+                            <td>Paracetamol</td>
+                            <td><a href="../media/xray1.jpg" target="_blank">View</a></td> <!-- Example media link -->
+                        </tr>
+                        <tr>
+                            <td>456</td>
+                            <td>Dr. Johnson</td>
+                            <td>Back Pain</td>
+                            <td>Physical therapy recommended</td>
+                            <td>Ibuprofen</td>
+                            <td><a href="../media/mri1.jpg" target="_blank">View</a></td> <!-- Example media link -->
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -167,46 +184,109 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editInfoForm">
+                <form id="editInfoForm" method="POST" action="{% url 'edit_patient_profile' patient.user_id %}">
+                    {% csrf_token %}
                     <div class="mb-3">
-                        <label for="inputName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="inputName" value="Ahmed">
+                        <label for="inputFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="inputFirstName" name="first_name"
+                               value="{{ patient.f_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="inputLastName" name="last_name"
+                               value="{{ patient.l_name }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="inputDOB" class="form-label">Date of Birth</label>
-                        <input type="date" class="form-control" id="inputDOB" value="1995-01-01">
+                        <input type="date" class="form-control" id="inputDOB" name="dob"
+                               value="{{ patient.dob|date:'Y-m-d' }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="inputGender" class="form-label">Gender</label>
-                        <select class="form-select" id="inputGender">
-                            <option value="Male" selected>Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                        <select class="form-select" id="inputGender" name="gender" required>
+                            <option value="Male" {% if patient.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if patient.gender == 'Female' %}selected{% endif %}>Female
+                            </option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="inputContact" class="form-label">Contact</label>
-                        <input type="text" class="form-control" id="inputContact" value="+1-987-654-3210">
+                        <label for="inputContact" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="inputContact" name="phone"
+                               value="{{ patient.phone }}"
+                               required>
                     </div>
                     <div class="mb-3">
                         <label for="inputAddress" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="inputAddress" value="456 Elm Street, Metropolis">
+                        <input type="text" class="form-control" id="inputAddress" name="address"
+                               value="{{ patient.address }}" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="inputMedicalHistory" class="form-label">Medical History</label>
-                        <textarea class="form-control" id="inputMedicalHistory" rows="4">Allergies: None, Chronic Conditions: Asthma, Past Treatments: Physical Therapy (2022)</textarea>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" id="saveChanges">Save Changes</button>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="saveChanges">Save Changes</button>
+
+
+        </div>
+    </div>
+</div>
+<!-- Edit Medical History Modal -->
+<div class="modal fade" id="editHistoryModal" tabindex="-1" aria-labelledby="editHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editHistoryModalLabel">Edit Medical History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="editHistoryForm" method="POST" action="{% url 'edit_medical_history' patient.user_id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="inputAllergies" class="form-label">Allergies</label>
+                        <textarea class="form-control" id="inputAllergies" name="allergies"
+                                  rows="2">{{ medicalhistory.allergies }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputPastIllnesses" class="form-label">Past Illnesses</label>
+                        <textarea class="form-control" id="inputPastIllnesses" name="past_illnesses"
+                                  rows="2">{{ medicalhistory.past_illnesses }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputSurgeries" class="form-label">Surgeries</label>
+                        <textarea class="form-control" id="inputSurgeries" name="surgeries"
+                                  rows="2">{{ medicalhistory.surgeries }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputChronicDiseases" class="form-label">Chronic Diseases</label>
+                        <textarea class="form-control" id="inputChronicDiseases" name="chronic_diseases"
+                                  rows="2">{{ medicalhistory.chronic_diseases }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputFamilyHistory" class="form-label">Family History</label>
+                        <textarea class="form-control" id="inputFamilyHistory" name="family_history"
+                                  rows="2">{{ medicalhistory.family_history }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputNotes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="inputNotes" name="notes"
+                                  rows="2">{{ medicalhistory.notes }}</textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Make Appointment Modal -->
-<div class="modal fade" id="makeAppointmentModal" tabindex="-1" aria-labelledby="makeAppointmentModalLabel" aria-hidden="true">
+<div class="modal fade" id="makeAppointmentModal" tabindex="-1" aria-labelledby="makeAppointmentModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -237,13 +317,18 @@
     </div>
 </div>
 
-  <!-- Footer Component -->
-  <my-footer></my-footer>
+<!-- Footer Component -->
+<my-footer></my-footer>
 
-  <!-- Scripts -->
-  <script src="{% static 'script/home.js' %}"></script>
-    <script src="{% static 'script/pprofile.js' %}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Scripts -->
+<script>
+  const static_url = "{% static '' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'script/home.js' %}"></script>
+<script src="{% static 'script/pprofile.js' %}"></script>
 
 <script>
     function submitProfilePic() {
@@ -254,6 +339,5 @@
         }
     }
 </script>
-
 </body>
 </html>

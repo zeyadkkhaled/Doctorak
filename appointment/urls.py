@@ -14,4 +14,7 @@ urlpatterns = [
     path('clinic/<str:clinic_id>/edit/', views.edit_clinic_profile, name='edit_clinic_profile'),
     path('exception/<str:exception_id>',views.edit_exception_hours, name='edit_exception_hours'),
     path('change-profile-picture/', views.change_profile_picture, name='change_profile_picture'),
+    path('profile/', views.profile_view, name='profile'),
+    path('patient/<str:patient_id>/edit', views.edit_patient_profile, name='edit_patient_profile'),
+    path('patient/<str:patient_id>/edit_medical_history', views.edit_medical_history, name='edit_medical_history'),
 ]

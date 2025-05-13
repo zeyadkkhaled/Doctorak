@@ -1,7 +1,8 @@
 # from email.utils import specialsre
 
 from django.shortcuts import redirect
-from .models import User, Doctor, Clinic, Patient, Clinic, WeeklyAvailability, Appointment, AvailabilityException
+from .models import User, Doctor, Clinic, Patient, Clinic, WeeklyAvailability, Appointment, AvailabilityException,MedicalRecord
+from .models import MedicalHistory
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.urls import reverse
@@ -122,6 +123,16 @@ def register(request):
                     phone=phone_number,
                     address=address,
                 )
+                # Create a MedicalHistory profile
+                MedicalHistory.objects.create(
+                    patient=user,
+                    allergies="",
+                    surgeries="",
+                    past_illnesses="",
+                    chronic_diseases="",
+                    family_history="",
+                    notes="",
+                )
                 message = "Registration successful. You can now log in."
 
     return render(request, 'signup1.html', {'message': message})
@@ -158,6 +169,17 @@ def logoutUser(request):
     return redirect('home')
 
 
+def profile_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    # Redirect to the appropriate profile page based on user role
+    if hasattr(request.user, 'doctor'):
+        return redirect('doctor_profile', doctor_id=request.user.user_id)
+    else:
+        return redirect('patient_profile', patient_id=request.user.user_id)
+
+
 @login_required(login_url='login')
 def doctor_profile(request, doctor_id):
     message = request.GET.get('message')
@@ -176,13 +198,32 @@ def doctor_profile(request, doctor_id):
 @login_required(login_url='login')
 def patient_profile(request, patient_id):
     message = request.GET.get('message')
+    patient =Patient.objects.get(user_id=patient_id)
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    try:
+        appointments = Appointment.objects.filter(patient_id=patient.patient_id)
+    except Appointment.DoesNotExist:
+        appointments = None
+    try:
+        medical_record = MedicalRecord.objects.get(patient_id=patient.patient_id)
+    except MedicalRecord.DoesNotExist:
+        medical_record = None
+    # Get the medical history for the patient
+    try:
+        medical_history = MedicalHistory.objects.get(patient_id=patient.patient_id)
+    except MedicalHistory.DoesNotExist:
+        medical_history = None
+    # Check if the user is authenticated
     try:
         patient = Patient.objects.get(user_id=patient_id)
         appointments = Appointment.objects.filter(patient_id=patient.patient_id)
     except Patient.DoesNotExist:
         return render(request, '404.html', status=404)
 
-    return render(request, 'p-profile.html', {'patient': patient, 'appointments': appointments, 'message': message})
+    return render(request, 'p-profile.html', {'patient': patient, 'appointments': appointments, 'message': message,'medicalhistory': medical_history,'medical_record': medical_record})
 
 
 
@@ -234,7 +275,31 @@ def edit_doctor_profile(request, doctor_id):
         doctor.save()
 
         return redirect(f'/doctor/{doctor.user_id}?message=Profile updated successfully.')
+    # If GET request
+    else:
+        return render(request, 'd-profile.html', {'doctor': doctor, 'clinics': clinics,
+                                                  'weekly_availabilities': weekly_availabilities})
 
+
+@login_required(login_url='login')
+def edit_patient_profile(request, patient_id):
+    try:
+        patient = Patient.objects.get(user_id=patient_id)
+    except Patient.DoesNotExist:
+        return render(request, 'p-profile.html', {'message': "Patient not found."})
+    if request.method == 'POST':
+        # Update patient profile
+        patient.f_name = request.POST['first_name']
+        patient.l_name = request.POST['last_name']
+        patient.dob = request.POST['dob']
+        patient.gender = request.POST['gender']
+        patient.phone = request.POST['phone']
+        patient.address = request.POST['address']
+        patient.save()
+        return redirect(f'/patient/{patient.user_id}?message=Profile updated successfully.')
+    # If GET request
+    else:
+        return render(request, 'p-profile.html', {'patient': patient})
 
 @login_required(login_url='login')
 def edit_clinic_profile(request, clinic_id):
@@ -354,3 +419,45 @@ def change_profile_picture(request):
             return redirect('home')
 
     return redirect('home')
+
+@login_required(login_url='login')
+def edit_medical_history(request, patient_id):
+    patient = Patient.objects.get(user_id=patient_id)
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    try:
+        medical_history = MedicalHistory.objects.get(patient=patient)
+    except MedicalHistory.DoesNotExist:
+        MedicalHistory.objects.create(
+            patient=patient,
+            allergies="",
+            surgeries="",
+            past_illnesses="",
+            chronic_diseases="",
+            family_history="",
+            notes="",
+        )
+
+    if request.method == 'POST':
+        allergies = request.POST.get('allergies')
+        surgeries = request.POST.get('surgeries')
+        past_illnesses = request.POST.get('past_illnesses')
+        chronic_diseases = request.POST.get('chronic_diseases')
+        family_history = request.POST.get('family_history')
+        notes = request.POST.get('notes')
+
+        # Update the medical history
+        MedicalHistory.objects.filter(patient=patient).update(
+            allergies=allergies,
+            surgeries=surgeries,
+            past_illnesses=past_illnesses,
+            chronic_diseases=chronic_diseases,
+            family_history=family_history,
+            notes=notes
+        )
+
+        return redirect(f'/patient/{patient_id}?message=Medical history updated successfully.')
+
+    return redirect(f'/patient/{patient_id}?message=Failed to update medical history.')

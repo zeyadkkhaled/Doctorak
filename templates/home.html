@@ -10,15 +10,7 @@
     <link rel="stylesheet" href="{% static 'styles/home.css' %}">
   <link rel="icon" href="{% static 'imgs/logoso88.png' %}" type="image/x-icon" />
 </head>
-<body data-user-authenticated="{{ request.user.is_authenticated|lower }}">
-  <my-header></my-header>
-
-  <a href="../pages/p-profile.html" class="btn btn-danger mt-2">
-    <i class="bi bi-person-plus"></i> elpatient profile 3obal ma tofrag
-  </a>
-  <a href="../pages/d-profile.html"class="btn btn-danger mt-2">
-    <i class="bi bi-person-plus"></i> doctor profile 3obal ma tofrag
-  </a>
+<body data-user-authenticated="{{ request.user.is_authenticated|lower }}" data-user-role="{{ request.user.get_role }}">  <my-header></my-header>
 
   <!-- Specialties Section -->
   <div class="container mt-5">

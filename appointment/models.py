@@ -138,6 +138,25 @@ class Appointment(models.Model):
         managed = False
 
 
+# Medical History Table
+class MedicalHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, db_column='patient_id')
+    allergies = models.TextField(blank=True, null=True)
+    past_illnesses = models.TextField(blank=True, null=True)
+    surgeries = models.TextField(blank=True, null=True)
+    chronic_diseases = models.TextField(blank=True, null=True)
+    family_history = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'medical_history'
+        managed = False
+
+    def __str__(self):
+        return f"Medical History for Patient ID {self.patient.patient_id}"
+
+
 # Medical Record Table
 class MedicalRecord(models.Model):
     record_id = models.AutoField(primary_key=True)

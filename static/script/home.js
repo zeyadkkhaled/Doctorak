@@ -1,151 +1,292 @@
 //temp header we footer
 function updateHeaderButton() {
-    const profileButton = document.getElementById('profileButton');
-    const profileButtonText = document.getElementById('profileButtonText');
     const isAuthenticated = document.body.dataset.userAuthenticated === 'true';
+    const userRole = document.body.dataset.userRole;
 
-    if (isAuthenticated) {
-        // Remove modal attributes
-        profileButton.removeAttribute('data-bs-toggle');
-        profileButton.removeAttribute('data-bs-target');
-        profileButton.removeAttribute('aria-controls');
+    const headerButtons = document.querySelector('.h .d-flex');
+    if (headerButtons) {
+        headerButtons.innerHTML = isAuthenticated ? `
+            <a href="/profile/" class="btn btn-outline-light me-2 d-flex align-items-center">
+                <i class="bi bi-person-circle me-2"></i>
+                <span>Profile</span>
+            </a>
+            <button id="logoutButton" class="btn btn-outline-light d-flex align-items-center">
+                <i class="bi bi-box-arrow-right me-2"></i>
+                <span>Logout</span>
+            </button>
+        ` : `
+            <button id="loginButton" class="btn btn-outline-light d-flex align-items-center"
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+                <span>Sign In</span>
+            </button>
+        `;
 
-        // Update text and add logout functionality
-        profileButtonText.textContent = 'Logout';
-        profileButton.onclick = () => window.location.href = '/logout/';
+        // Add event listener for logout button if authenticated
+        if (isAuthenticated) {
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    window.location.href = '/logout/';
+                });
+            }
+        }
     }
 }
 
 // Add this line right after the function definition
-document.addEventListener('DOMContentLoaded', updateHeaderButton);
+document.addEventListener('DOMContentLoaded', () => {
+    // Only run updateHeaderButton() if we're on the homepage
+    if (window.location.pathname === '/' || window.location.pathname === '/home/') {
+        updateHeaderButton();
+    }
+});
 
 // Rest of your code (myheader class definition, etc.) follows...
+class myPatientHeader extends HTMLElement {
+  connectedCallback() {
+    const userName = document.body.dataset.userName || 'User';
+
+    this.innerHTML = `
+      <!-- Patient Header -->
+      <div class="h" style="background-color: #00c4b4;">
+        <div class="py-2 px-3 d-flex justify-content-between align-items-center">
+          <!-- Logo (left) -->
+          <a href="/">
+            <img src="${static_url}imgs/logoso88.png" alt="Doctorak" style="height: 80px;" />
+          </a>
+
+          <!-- Welcome Message (center) -->
+          <div class="text-white fw-bold fs-3 flex-grow-1 text-center">
+            Welcome, ${userName}
+          </div>
+
+          <!-- Logout Button (right) -->
+          <form action="/logout/" method="post" class="mb-0">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
+            <button type="submit" class="btn btn-outline-light ms-auto">
+              Logout
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+}
+
+customElements.define('my-patient-header', myPatientHeader);
 
 class myheader extends HTMLElement {
     connectedCallback() {
+        const isAuthenticated = document.body.dataset.userAuthenticated === 'true';
+        const userRole = document.body.dataset.userRole;
+
         this.innerHTML = `
             <!-- Header -->
             <div class="h">
-            <div class=" py-2 px-3 d-flex justify-content-between align-items-center">
-                <a href="">
-                 <img src="${static_url}imgs/logoso88.png" alt="Doctorak" style="height: 80px;"/>
-                </a>
-                <button id="profileButton" class="btn btn-outline-light ms-auto d-flex align-items-center" type="button" data-bs-toggle="modal" data-bs-target="#loginModal" aria-controls="loginModal">
-                                <i class="bi bi-person-circle me-2"></i>
-                                <span id="profileButtonText">Sign In</span>
-                </button>
-            </div>
-            </div>
+                <div class="py-2 px-3 container-fluid">
+                  <div class="row align-items-center justify-content-between">
+                    <div class="col-auto">
+                      <a href="/">
+                        <img src="${static_url}imgs/logoso88.png" alt="Doctorak" style="height: 80px;" />
+                      </a>
+                    </div>
+                    <div class="col-auto d-flex">
+                      ${isAuthenticated ? `
+                        <a href="/profile/" class="btn btn-outline-light me-2 d-flex align-items-center">
+                          <i class="bi bi-person-circle me-2"></i>
+                          <span>Profile</span>
+                        </a>
+                        <button id="logoutButton" class="btn btn-outline-light d-flex align-items-center">
+                          <i class="bi bi-box-arrow-right me-2"></i>
+                          <span>Logout</span>
+                        </button>
+                      ` : `
+                        <button id="loginButton" class="btn btn-outline-light d-flex align-items-center"
+                                data-bs-toggle="modal" data-bs-target="#loginModal">
+                          <i class="bi bi-box-arrow-in-right me-2"></i>
+                          <span>Sign In</span>
+                        </button>
+                      `}
+                    </div>
+                  </div>
+                </div>
+                </div>
+
             <!-- Logo and Title -->
             <div class="text-center mt-4">
-                <h1 class="fw-bold mt-3">Book with the Best Doctors in the World </h1>
+                <h1 class="fw-bold mt-3">Book with the Best Doctors in the World</h1>
                 <p class="text-muted">Choose a doctor based on location, specialty, or ratings.</p>
             </div>
-            <!-- Search Filters -->
+
             <!-- Search Filters -->
             <div class="container mt-4 py-3 px-4 rounded" style="background-color:rgba(8, 196, 180, 0.87);">
                 <div class="row g-2 mb-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label d-flex align-items-center">
-                    <i class="bi bi-globe-americas"></i>
-                    Country
-                    </label>
-                    <select id="country" class="form-select">
-                    <option value="">Select Country</option>
-                    <option value="egypt">Egypt</option>
-                    <option value="saudi">Saudi Arabia</option>
-                    </select>
+                    <div class="col-md-3">
+                        <label class="form-label d-flex align-items-center">
+                            <i class="bi bi-globe-americas"></i>
+                            Country
+                        </label>
+                        <select id="country" class="form-select">
+                            <option value="">Select Country</option>
+                            <option value="egypt">Egypt</option>
+                            <option value="saudi">Saudi Arabia</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label d-flex align-items-center">
+                            <i class="bi bi-geo-fill"></i>
+                            City
+                        </label>
+                        <select id="city" class="form-select" disabled>
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label d-flex align-items-center">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            Region
+                        </label>
+                        <select id="region" class="form-select" disabled>
+                            <option value="">Select Region</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label d-flex align-items-center">
+                            <img src="${static_url}imgs/spec.png" alt="Specialty Icon" style="width: 20px; height: 20px; margin-right: 6px;">
+                            Specialty
+                        </label>
+                        <select class="form-select">
+                            <option value="">Specialty</option>
+                            <option>Pediatrics & Newborn</option>
+                            <option>Internal Medicine</option>
+                            <option>Obstetrics & Gynecology</option>
+                            <option>Dentistry</option>
+                            <option>Cardiology</option>
+                            <option>Orthopedics</option>
+                            <option>ENT</option>
+                            <option>General Surgery</option>
+                            <option>Neurology</option>
+                            <option>Dermatology</option>
+                            <option>Oncology</option>
+                            <option>Ophthalmology</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label d-flex align-items-center">
-                    <i class="bi bi-geo-fill"></i>
-                    City
-                    </label>
-                    <select id="city" class="form-select">
-                    <option value="">Select City</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label d-flex align-items-center">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    Region
-                    </label>
-                    <select id="region" class="form-select">
-                    <option value="">Select Region</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label d-flex align-items-center">
-                    <img src="${static_url}imgs/spec.png" alt="Specialty Icon" style="width: 20px; height: 20px; margin-right: 6px;">
-                    Specialty
-                    </label>
-                    <select class="form-select">
-                    <option>Specialty</option>
-                    <option>Pediatrics & Newborn</option>
-                    <option>Internal Medicine</option>
-                    <option>Obstetrics & Gynecology</option>
-                    <option>Dentistry</option>
-                    <option>Cardiology</option>
-                    <option>Orthopedics</option>
-                    <option>ENT</option>
-                    <option>General Surgery</option>
-                    <option>Neurology</option>
-                    <option>Dermatology</option>
-                    <option>Oncology</option>
-                    <option>Ophthalmology</option>
-                    </select>
-                </div>
-                </div>
-            
+
                 <div class="row g-2 align-items-end">
-                <div class="col-md-10">
-                    <input type="text" class="form-control" placeholder="Search by doctor name (optional)" />
-                </div>
-                <div class="col-md-2 text-end">
-                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center" style="background-color: #d9edea;" onclick="window.location.href='../pages/spec.html'">
-
-                    <i class="bi bi-search" style="color:black;"></i>     <span style="color: black;">Search</span>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" placeholder="Search by doctor name (optional)" />
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center" 
+                                style="background-color: #d9edea;" 
+                                onclick="window.location.href='../pages/spec.html'">
+                            <i class="bi bi-search" style="color:black;"></i>
+                            <span style="color: black;">Search</span>
                         </button>
-
-                </div>
+                    </div>
                 </div>
             </div>
+
             <!-- Login Modal -->
-                <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" >
-                    <div class="modal-dialog">
-                        <div class="modal-content"style="background-color: #e8fffc;">
-                            <div class="modal-header"style="background-color: #00c4b4;">
-                                <h5 class="modal-title" id="loginModalLabel">Login</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                               <form action="${LOGIN_URL}" method="post">
-                                    <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
-                                    <div class="alert alert-warning">Example Flash Message</div>
-                                    <div class="form-group mb-3">
-                                        <label for="email">Email address</label>
-                                        <input type="email" name="email" class="form-control" placeholder="Enter email" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="password">Password</label>
-                                        <input type="password" name="password" class="form-control" placeholder="Password" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary btn-block w-100" style="background-color: #00c4b4;">Login</button>
-                                </form>
-                                <hr>
-                                <p class="text-center">Don't have an account? <a href="/register ">Sign up</a></p>
-                            </div>
+            <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content" style="background-color: #e8fffc;">
+                        <div class="modal-header" style="background-color: #00c4b4;">
+                            <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="${LOGIN_URL}" method="post">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
+                                <div class="alert alert-warning">Enter your account details!</div>
+                                <div class="form-group mb-3">
+                                    <label for="email">Email address</label>
+                                    <input type="email" name="email" class="form-control" placeholder="Enter email" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="password">Password</label>
+                                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block w-100" style="background-color: #00c4b4;">Login</button>
+                            </form>
+                            <hr>
+                            <p class="text-center">Don't have an account? <a href="/register">Sign up</a></p>
                         </div>
                     </div>
                 </div>
-            
-                `;
-        updateHeaderButton();
+            </div>
+        `;
+
+        // Add event listeners
+        if (isAuthenticated) {
+            const logoutButton = this.querySelector('#logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    window.location.href = '/logout/';
+                });
+            }
+        }
+
+        // Initialize location dropdowns
+        this.initializeLocationDropdowns();
+    }
+
+    initializeLocationDropdowns() {
+        const countrySelect = this.querySelector('#country');
+        const citySelect = this.querySelector('#city');
+        const regionSelect = this.querySelector('#region');
+
+        if (countrySelect && citySelect && regionSelect) {
+            countrySelect.addEventListener('change', () => {
+                this.updateCityOptions(countrySelect.value);
+            });
+
+            citySelect.addEventListener('change', () => {
+                this.updateRegionOptions(citySelect.value);
+            });
+        }
+    }
+
+    updateCityOptions(country) {
+        const citySelect = this.querySelector('#city');
+        const regionSelect = this.querySelector('#region');
+
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        regionSelect.innerHTML = '<option value="">Select Region</option>';
+
+        citySelect.disabled = !country;
+        regionSelect.disabled = true;
+
+        if (cityOptions[country]) {
+            cityOptions[country].forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+        }
+    }
+
+    updateRegionOptions(city) {
+        const regionSelect = this.querySelector('#region');
+
+        regionSelect.innerHTML = '<option value="">Select Region</option>';
+        regionSelect.disabled = !city;
+
+        if (regionOptions[city]) {
+            regionOptions[city].forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region;
+                regionSelect.appendChild(option);
+            });
+        }
     }
 }
 
 customElements.define('my-header', myheader);
-
 
 class mysheader extends HTMLElement {
     connectedCallback() {
@@ -283,44 +424,44 @@ console.log("Searching for doctors in:", specialty);
 
 //7war el region
 document.addEventListener("DOMContentLoaded", function () {
-   const cityOptions = {
-    egypt: [
-        "Cairo",
-        "Alexandria",
-        "Giza",
-        "Dakahlia",
-        "Sharqia",
-        "Qalyubia",
-        "Sohag",
-        "Assiut"
-    ],
-    saudi: [
-        "Riyadh",
-        "Jeddah",
-        "Dammam",
-        "Mecca",
-        "Medina",
-        "Khobar"
-    ]
-};
+    const cityOptions = {
+        egypt: [
+            "Cairo",
+            "Alexandria",
+            "Giza",
+            "Dakahlia",
+            "Sharqia",
+            "Qalyubia",
+            "Sohag",
+            "Assiut"
+        ],
+        saudi: [
+            "Riyadh",
+            "Jeddah",
+            "Dammam",
+            "Mecca",
+            "Medina",
+            "Khobar"
+        ]
+    };
 
-const regionOptions = {
-    Cairo: ["Nasr City", "Heliopolis", "Maadi", "Zamalek", "New Cairo", "Shubra", "Mokattam"],
-    Alexandria: ["Sidi Gaber", "Gleem", "Smouha", "Mandara", "Agami", "Stanley"],
-    Giza: ["Dokki", "Mohandessin", "Faisal", "Haram", "6th of October", "Sheikh Zayed"],
-    Dakahlia: ["Mansoura", "Talkha", "Mit Ghamr"],
-    Sharqia: ["Zagazig", "10th of Ramadan", "Belbeis"],
-    Qalyubia: ["Banha", "Qalyub", "Shubra El Kheima"],
-    Sohag: ["Sohag City", "Tahta", "Akhmim"],
-    Assiut: ["Assiut City", "Manfalut", "Dairut"],
+    const regionOptions = {
+        Cairo: ["Nasr City", "Heliopolis", "Maadi", "Zamalek", "New Cairo", "Shubra", "Mokattam"],
+        Alexandria: ["Sidi Gaber", "Gleem", "Smouha", "Mandara", "Agami", "Stanley"],
+        Giza: ["Dokki", "Mohandessin", "Faisal", "Haram", "6th of October", "Sheikh Zayed"],
+        Dakahlia: ["Mansoura", "Talkha", "Mit Ghamr"],
+        Sharqia: ["Zagazig", "10th of Ramadan", "Belbeis"],
+        Qalyubia: ["Banha", "Qalyub", "Shubra El Kheima"],
+        Sohag: ["Sohag City", "Tahta", "Akhmim"],
+        Assiut: ["Assiut City", "Manfalut", "Dairut"],
 
-    Riyadh: ["Olaya", "Al Malaz", "King Fahd District", "Al Nakheel", "Al Murabba", "Al Yasmin"],
-    Jeddah: ["Al Andalus", "Al Hamra", "Al Faisaliyah", "Al Rawdah", "Al Salamah", "Al Safa"],
-    Dammam: ["Al Faisaliyah", "Al Shati", "Al Mazruiyah", "Al Khalij"],
-    Mecca: ["Al Aziziyah", "Al Shoqiyah", "Al Awali"],
-    Medina: ["Al Haram", "Al Qiblatain", "Al Aqiq"],
-    Khobar: ["Al Ulaya", "Al Aqrabiyah", "Al Thuqbah"]
-};
+        Riyadh: ["Olaya", "Al Malaz", "King Fahd District", "Al Nakheel", "Al Murabba", "Al Yasmin"],
+        Jeddah: ["Al Andalus", "Al Hamra", "Al Faisaliyah", "Al Rawdah", "Al Salamah", "Al Safa"],
+        Dammam: ["Al Faisaliyah", "Al Shati", "Al Mazruiyah", "Al Khalij"],
+        Mecca: ["Al Aziziyah", "Al Shoqiyah", "Al Awali"],
+        Medina: ["Al Haram", "Al Qiblatain", "Al Aqiq"],
+        Khobar: ["Al Ulaya", "Al Aqrabiyah", "Al Thuqbah"]
+    };
 
 
     const countrySelect = document.getElementById("country");

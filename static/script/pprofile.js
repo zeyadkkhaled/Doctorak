@@ -13,15 +13,17 @@ function updateProfilePicture() {
     }
 }
 
-document.getElementById('saveChanges').addEventListener('click', function() {
-    const name = document.getElementById('inputName').value;
+
+document.getElementById('saveChanges').addEventListener('click', function () {
+    const firstName = document.getElementById('inputFirstName').value;
+    const lastName = document.getElementById('inputLastName').value;
+    const fullName = `${firstName} ${lastName}`;
     const dob = document.getElementById('inputDOB').value;
     const gender = document.getElementById('inputGender').value;
     const contact = document.getElementById('inputContact').value;
     const address = document.getElementById('inputAddress').value;
-    const medicalHistory = document.getElementById('inputMedicalHistory').value;
 
-    // Calculate age based on date of birth
+    // Calculate age
     const dobDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - dobDate.getFullYear();
@@ -31,18 +33,15 @@ document.getElementById('saveChanges').addEventListener('click', function() {
     }
 
     // Update the display fields
-    document.getElementById('displayName').innerText = name;
+    document.getElementById('displayName').innerText = fullName;
     document.getElementById('displayDOB').innerText = dob;
-    document.getElementById('displayAge').innerText = age;
     document.getElementById('displayGender').innerText = gender;
 
-    // Update medical history
-    const medicalHistoryList = document.querySelector('.card-body ul');
-    medicalHistoryList.innerHTML = medicalHistory.split(',').map(item => `<li>${item.trim()}</li>`).join('');
-
+    // Hide the modal
     const modal = bootstrap.Modal.getInstance(document.getElementById('editInfoModal'));
     modal.hide();
 });
+
 
 document.getElementById('scheduleAppointment').addEventListener('click', function() {
     // Get values from the form

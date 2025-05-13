@@ -53,8 +53,9 @@
                 <!-- Edit Clinic Information Button -->
                 <button class="btn btn-danger mt-2" id="editClinicInfo" data-bs-toggle="modal"
                         data-bs-target="#editClinicInfoModal">Edit Clinic Info
+
                 </button>
-                <!-- Logout Button -->
+                 <!-- Logout Button -->
                 <a href="{% url 'logout' %}">
                     <button class="btn btn-danger mt-2" id="logoutButton"
                             style="background-color: #eebb4a; border-color: white; transition: background-color 0.2s;"
@@ -586,6 +587,7 @@
             document.getElementById('profilePicForm').submit();
         }
     }
+
     // Function to validate time
     function isValidTime(startTime, endTime) {
         if (!startTime || !endTime) return false;

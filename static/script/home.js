@@ -418,19 +418,9 @@ document.querySelectorAll('.book-btn').forEach(button => {
 });
 
 
-// document.querySelectorAll('.specialty-card').forEach(card => {
-//     card.style.cursor = 'pointer';
-//     card.addEventListener('click', () => {
-//         const specialty = encodeURIComponent(card.getAttribute('data-specialty'));
-//         window.location.href = `spec.html?specialty=${specialty}`;
-//     });
-// });
-//
-// const urlParams = new URLSearchParams(window.location.search);
-// const specialty = urlParams.get('specialty');
-// console.log("Searching for doctors in:", specialty);
 
 //7war el region
+
 document.addEventListener("DOMContentLoaded", function () {
     const cityOptions = {
         egypt: [

@@ -187,7 +187,6 @@
             </div>
 
 
-            <!-- Appointments Card -->
             <div class="card mt-3">
                 <div class="card-header text-white" style="background-color: #00c4b4;">
                     Scheduled Appointments
@@ -207,22 +206,22 @@
                         </thead>
                         <tbody>
                         {% for appointment in appointments %}
-                            <tr id="appointment-{{  appointment.appointment_id }}">
+                            <tr id="appointment-{{ appointment.appointment_id }}">
                                 <td>{{ appointment.appointment_date|date:"Y-m-d" }}</td>
                                 <td>{{ appointment.appointment_time|time:"H:i" }}</td>
-                                <td>{{ appointment.patient.patient_id }} </td>
+                                <td>{{ appointment.patient.patient_id }}</td>
                                 <td>{{ appointment.patient.f_name }} {{ appointment.patient.l_name }}</td>
                                 <td>
-                                    <span class="badge {% if appointment.status == 'Confirmed' %}bg-success{% elif appointment.status == 'Pending' %}bg-warning{% else %}bg-danger{% endif %}">
-                                        {{ appointment.status }}
-                                    </span>
+                                     <span class="badge {% if appointment.status == 'Confirmed' %}bg-success{% elif appointment.status == 'Pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                         {{ appointment.status }}
+                                     </span>
                                 </td>
                                 <td>
                                     {% if appointment.status == 'Confirmed' %}
                                         <button class="btn btn-primary btn-sm add-prescription"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#addPrescriptionModal"
-                                                data-appointment-id="{{  appointment.appointment_id }}"
+                                                data-appointment-id="{{ appointment.appointment_id }}"
                                                 data-patient-id="{{ appointment.patient.patient_id }}"
                                                 data-doctor-id="{{ doctor.doctor_id }}">
                                             {% if appointment.prescription %}
@@ -235,26 +234,28 @@
                                 </td>
                                 <td>
                                     {% if appointment.status == 'Pending' %}
-                                        <a href="{% url 'appointment_status' appointment.appointment_id %}?status=Confirmed"
-                                           style="text-decoration: none;">
-                                            <button class="btn btn-success btn-sm confirm-appointment"
-                                                    data-appointment-id="{{  appointment.appointment_id }}">
+                                        <form method="POST"
+                                              action="{% url 'appointment_status' appointment.appointment_id %}"
+                                              style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="Confirmed">
+                                            <button type="submit" class="btn btn-success btn-sm">
                                                 <i class="bi bi-check-circle"></i> Confirm
                                             </button>
-                                        </a>
+                                        </form>
                                     {% endif %}
                                     {% if appointment.status != 'Cancelled' %}
-                                        {% if appointment.status != 'Cancelled' %}
-                                            <a href="{% url 'appointment_status' appointment.appointment_id %}?status=Cancelled"
-                                               style="text-decoration: none;">
-                                                <button class="btn btn-danger btn-sm">
-                                                    <i class="bi bi-x-circle"></i> Cancel
-                                                </button>
-                                            </a>
-                                        {% endif %}
-
+                                        <form method="POST"
+                                              action="{% url 'appointment_status' appointment.appointment_id %}"
+                                              style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="Cancelled">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="bi bi-x-circle"></i> Cancel
+                                            </button>
+                                        </form>
                                         <a href="/doctor-patient-view/{{ appointment.patient.user.user_id }}"
-                                           class="btn btn-info btn-sm view-patient">
+                                           class="btn btn-info btn-sm">
                                             <i class="bi bi-person"></i> View Patient
                                         </a>
                                     {% endif %}
@@ -269,38 +270,47 @@
                     </table>
                 </div>
             </div>
-            {# patients reviews            #}
-            <div class="card mt-4">
+            <!-- Patient Reviews -->
+
+         <div class="card mt-4">
                 <div class="card-header text-white" style="background-color: #00c4b4;">
                     Patient Reviews
                 </div>
                 <div class="card-body">
-                    {% if reviews %}
-                        {% for review in reviews %}
-                            <div class="mb-3 border-bottom pb-2">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong>{{ review.patient.f_name }} {{ review.patient.l_name }}</strong>
-                                        <span class="text-muted small">({{ review.date_issued|date:"Y-m-d" }})</span>
-                                    </div>
-                                    <div>
-                                        {% for star in "12345"|slice:":review.rating"|make_list %}
-                                            <i class="bi bi-star-fill text-warning"></i>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for review in reviews %}
+                                <tr>
+                                    <td>{{ review.patient.f_name }} {{ review.patient.l_name }}</td>
+                                    <td>{{ review.date_issued|date:"Y-m-d" }}</td>
+                                    <td>
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                            {% else %}
+                                                <i class="bi bi-star text-muted"></i>
+                                            {% endif %}
                                         {% endfor %}
-                                        {% for star in "12345"|slice:"review.rating:"|make_list %}
-                                            <i class="bi bi-star text-muted"></i>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <p class="mt-2">{{ review.comment }}</p>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted text-center">No reviews have been submitted yet.</p>
-                    {% endif %}
+                                    </td>
+                                    <td>{{ review.comment }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No reviews yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
             <!-- Add Prescription Modal -->
             <div class="modal fade" id="addPrescriptionModal" tabindex="-1" aria-labelledby="addPrescriptionModalLabel"
                  aria-hidden="true">
@@ -876,38 +886,39 @@
         }
     });
     document.querySelectorAll('.add-prescription').forEach(button => {
-  button.addEventListener('click', function () {
-    const row = this.closest('tr');
-    document.getElementById('appointmentId').value = this.getAttribute('data-appointment-id');
-    document.getElementById('patientId').value = this.getAttribute('data-patient-id');
-    document.getElementById('doctorId').value = this.getAttribute('data-doctor-id'); // set this dynamically if not already
-    document.getElementById('patientName').value = row.querySelector('td:nth-child(4)').innerText.trim();
-  });
-});
+        button.addEventListener('click', function () {
+            const row = this.closest('tr');
+            document.getElementById('appointmentId').value = this.getAttribute('data-appointment-id');
+            document.getElementById('patientId').value = this.getAttribute('data-patient-id');
+            document.getElementById('doctorId').value = this.getAttribute('data-doctor-id'); // set this dynamically if not already
+            document.getElementById('patientName').value = row.querySelector('td:nth-child(4)').innerText.trim();
+        });
+    });
+
     function openPrescriptionModal(appointmentId, patientId, patientName, doctorId) {
-    document.getElementById('appointmentId').value = appointmentId;
-    document.getElementById('patientId').value = patientId;
-    document.getElementById('patientName').value = patientName;
-    document.getElementById('doctorId').value = doctorId;
-}
-
-document.querySelectorAll('.add-prescription').forEach(button => {
-    button.addEventListener('click', function() {
-        // Get data attributes from button
-        const appointmentId = this.getAttribute('data-appointment-id');
-        const patientId = this.getAttribute('data-patient-id');
-        const doctorId = this.getAttribute('data-doctor-id');
-
-        // Get patient name from table row
-        const patientName = this.closest('tr').querySelector('td:nth-child(4)').textContent.trim();
-
-        // Set hidden input values
         document.getElementById('appointmentId').value = appointmentId;
         document.getElementById('patientId').value = patientId;
-        document.getElementById('doctorId').value = doctorId;
         document.getElementById('patientName').value = patientName;
+        document.getElementById('doctorId').value = doctorId;
+    }
+
+    document.querySelectorAll('.add-prescription').forEach(button => {
+        button.addEventListener('click', function () {
+            // Get data attributes from button
+            const appointmentId = this.getAttribute('data-appointment-id');
+            const patientId = this.getAttribute('data-patient-id');
+            const doctorId = this.getAttribute('data-doctor-id');
+
+            // Get patient name from table row
+            const patientName = this.closest('tr').querySelector('td:nth-child(4)').textContent.trim();
+
+            // Set hidden input values
+            document.getElementById('appointmentId').value = appointmentId;
+            document.getElementById('patientId').value = patientId;
+            document.getElementById('doctorId').value = doctorId;
+            document.getElementById('patientName').value = patientName;
+        });
     });
-});
 </script>
 <script src="{% static 'script/home.js' %}"></script>
 <script src="{% static 'script/profile.js' %}"></script>

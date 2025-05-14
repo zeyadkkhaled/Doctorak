@@ -99,35 +99,52 @@
                 <div class="card-body">
                     <table class="table" id="appointmentsTable">
                         <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Doctor</th>
-                            <th>Status</th>
-                            <th>Action</th> <!-- New column for actions -->
-                        </tr>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                                <th>Review</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>2023-10-15</td>
-                            <td>10:00 AM</td>
-                            <td>Dr. Smith</td>
-                            <td>Confirmed</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm cancel-appointment">Cancel</button>
-                            </td> <!-- Cancel button -->
-                        </tr>
-                        <tr>
-                            <td>2023-11-01</td>
-                            <td>2:00 PM</td>
-                            <td>Dr. Johnson</td>
-                            <td>Pending</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm cancel-appointment">Cancel</button>
-                            </td> <!-- Cancel button -->
-                        </tr>
+                            {% for appointment in appointments %}
+                            <tr>
+                                <td>{{ appointment.appointment_date }}</td>
+                                <td>{{ appointment.appointment_time|time:"H:i" }}</td>
+                                <td>Dr. {{ appointment.doctor.f_name }} {{ appointment.doctor.l_name }}</td>
+                                <td>{{ appointment.status }}</td>
+                                <td>
+                                    {% if appointment.status != 'Cancelled' and appointment.status != 'Completed' %}
+                                        <form method="post" action="{% url 'appointment_status' appointment.appointment_id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="Cancelled">
+                                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if appointment.status == 'Confirmed' %}
+                                        <button class="btn btn-primary btn-sm add-review"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#addReviewModal"
+                                                data-appointment-id="{{ appointment.appointment_id }}"
+                                                data-doctor-id="{{ appointment.doctor.doctor_id }}"
+                                                data-patient-id="{{ appointment.patient.patient_id }}">
+                                            Add Review
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6">No appointments found.</td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
+
 
                 </div>
             </div>
@@ -138,6 +155,7 @@
                     Medical Record
                 </div>
                 <div class="card-body">
+                    <!-- Medical Record Table with Media -->
                     <table class="table" id="medicalRecordTable">
                         <thead>
                         <tr>
@@ -146,26 +164,34 @@
                             <th>Diagnosis</th>
                             <th>Notes</th>
                             <th>Prescription</th>
-                            <th>Media</th> <!-- New column for media -->
+                            <th>Media</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>123</td>
-                            <td>Dr. Smith</td>
-                            <td>Flu</td>
-                            <td>Rest and hydration</td>
-                            <td>Paracetamol</td>
-                            <td><a href="../media/xray1.jpg" target="_blank">View</a></td> <!-- Example media link -->
-                        </tr>
-                        <tr>
-                            <td>456</td>
-                            <td>Dr. Johnson</td>
-                            <td>Back Pain</td>
-                            <td>Physical therapy recommended</td>
-                            <td>Ibuprofen</td>
-                            <td><a href="../media/mri1.jpg" target="_blank">View</a></td> <!-- Example media link -->
-                        </tr>
+                        {% for record in medical_record %}
+                            <tr>
+                                <td>{{ record.doctor.doctor_id }}</td>
+                                <td>Dr. {{ record.doctor.f_name }} {{ record.doctor.l_name }}</td>
+                                <td>{{ record.diagnosis }}</td>
+                                <td>{{ record.notes }}</td>
+                                <td>
+                                    {% for prescription in record.patient.prescription_set.all %}
+                                        {{ prescription.medication }}<br>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if record.file_path %}
+                                        <a href="{% static record.file_path|cut:'static/' %}" target="_blank">View</a>
+                                    {% else %}
+                                        No Media
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No medical records found.</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -174,7 +200,44 @@
         </div>
     </div>
 </div>
+<!-- Add Review Modal -->
+<div class="modal fade" id="addReviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm" method="post" action="{% url 'save_review' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="appointment_id" id="reviewAppointmentId">
+                    <input type="hidden" name="doctor_id" id="reviewDoctorId">
+                    <input type="hidden" name="patient_id" id="reviewPatientId">
 
+                    <div class="mb-3">
+                        <label class="form-label">Rating</label>
+                        <div class="rating">
+                            <input type="radio" name="rating" value="5" id="5"><label for="5">☆</label>
+                            <input type="radio" name="rating" value="4" id="4"><label for="4">☆</label>
+                            <input type="radio" name="rating" value="3" id="3"><label for="3">☆</label>
+                            <input type="radio" name="rating" value="2" id="2"><label for="2">☆</label>
+                            <input type="radio" name="rating" value="1" id="1"><label for="1">☆</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Edit Personal Info Modal -->
 <div class="modal fade" id="editInfoModal" tabindex="-1" aria-labelledby="editInfoModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -322,8 +385,8 @@
 
 <!-- Scripts -->
 <script>
-  const static_url = "{% static '' %}";
-  const CSRF_TOKEN = "{{ csrf_token }}";
+    const static_url = "{% static '' %}";
+    const CSRF_TOKEN = "{{ csrf_token }}";
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

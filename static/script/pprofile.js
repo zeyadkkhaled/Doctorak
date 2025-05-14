@@ -124,6 +124,15 @@ function addMedicalRecord(doctorId, doctorName, diagnosis, notes, prescription, 
         mediaCell.innerText = 'No Media';
     }
 }
+// Handle review modal data
+document.querySelectorAll('.add-review').forEach(button => {
+    button.addEventListener('click', function() {
+        const appointmentId = this.getAttribute('data-appointment-id');
+        const doctorId = this.getAttribute('data-doctor-id');
+        const patientId = this.getAttribute('data-patient-id');
 
-// Example usage: Add a medical record dynamically
-addMedicalRecord('789', 'Dr. Adams', 'Headache', 'Hydration and rest', 'Aspirin', '../media/ctscan1.jpg');
+        document.getElementById('reviewAppointmentId').value = appointmentId;
+        document.getElementById('reviewDoctorId').value = doctorId;
+        document.getElementById('reviewPatientId').value = patientId;
+    });
+});

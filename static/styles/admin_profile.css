@@ -105,26 +105,17 @@ textarea {
     padding-left: 200px;
     width: 100%;
 }
-<style>
-.rating {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
+.modal .btn-success {
+    background-color: #00c4b4;
+    border: none;
 }
-
-.rating input {
-    display: none;
+.modal .btn-success:hover {
+    background-color: #019a8a;
 }
-
-.rating label {
-    cursor: pointer;
-    font-size: 30px;
-    color: #ddd;
+.modal .btn-danger {
+    background-color: #dc3545;
+    border: none;
 }
-
-.rating label:hover,
-.rating label:hover ~ label,
-.rating input:checked ~ label {
-    color: #ffd700;
+.modal .btn-danger:hover {
+    background-color: #b02a37;
 }
-</style>

@@ -198,43 +198,46 @@ def doctor_profile(request, doctor_id):
         weekly_availabilities = WeeklyAvailability.objects.filter(doctor_id=doctor.doctor_id)
         exception_hours = AvailabilityException.objects.filter(doctor_id=doctor.doctor_id)
         appointments = Appointment.objects.filter(doctor_id=doctor.doctor_id)
+        reviews = RatingReview.objects.filter(doctor_id=doctor.doctor_id)
+
+        # Debug prints
+        print("Doctor ID:", doctor.doctor_id)
+        print("Reviews:", reviews.values())
+
+        return render(request, 'd-profile.html', {
+            'doctor': doctor,
+            'clinics': clinics,
+            'weekly_availabilities': weekly_availabilities,
+            'message': message,
+            'exception_hours': exception_hours,
+            'appointments': appointments,
+            'reviews': reviews  # Changed from 'review' to 'reviews'
+        })
+
     except Doctor.DoesNotExist:
         return render(request, '404.html', status=404)
-
-    return render(request, 'd-profile.html',
-                  {'doctor': doctor, 'clinics': clinics, 'weekly_availabilities': weekly_availabilities,
-                   'message': message,'exception_hours': exception_hours,'appointments': appointments})
-
 @login_required(login_url='login')
 def patient_profile(request, patient_id):
     message = request.GET.get('message')
-    patient =Patient.objects.get(user_id=patient_id)
 
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    try:
-        appointments = Appointment.objects.filter(patient_id=patient.patient_id)
-    except Appointment.DoesNotExist:
-        appointments = None
-    try:
-        medical_record = MedicalRecord.objects.get(patient_id=patient.patient_id)
-    except MedicalRecord.DoesNotExist:
-        medical_record = None
-    # Get the medical history for the patient
-    try:
-        medical_history = MedicalHistory.objects.get(patient_id=patient.patient_id)
-    except MedicalHistory.DoesNotExist:
-        medical_history = None
-    # Check if the user is authenticated
     try:
         patient = Patient.objects.get(user_id=patient_id)
-        appointments = Appointment.objects.filter(patient_id=patient.patient_id)
     except Patient.DoesNotExist:
         return render(request, '404.html', status=404)
 
-    return render(request, 'p-profile.html', {'patient': patient, 'appointments': appointments, 'message': message,'medicalhistory': medical_history,'medical_record': medical_record})
+    appointments = Appointment.objects.filter(patient_id=patient.patient_id)
+    medical_record = MedicalRecord.objects.filter(patient_id=patient.patient_id)
+    medical_history = MedicalHistory.objects.filter(patient_id=patient.patient_id).first()
+    prescription= Prescription.objects.filter(patient_id=patient.patient_id)
 
+    return render(request, 'p-profile.html', {
+        'patient': patient,
+        'appointments': appointments,
+        'message': message,
+        'medical_record': medical_record,
+        'medicalhistory': medical_history,
+        'prescription': prescription
+    })
 
 
 @login_required(login_url='login')
@@ -540,8 +543,6 @@ def doctor_list(request):
     }
     return render(request, 'spec.html', context)
 
-
-
 @login_required(login_url='login')
 def doctor_info(request, doctor_id):
     try:
@@ -633,22 +634,18 @@ def doctor_info(request, doctor_id):
         return render(request, '404.html', status=404)
 @login_required(login_url='login')
 def appointment_status(request, appointment_id):
-    try:
-        appointment = Appointment.objects.get(appointment_id=appointment_id)
-        doctor = Doctor.objects.get(doctor_id=appointment.doctor_id)
+    if request.method == 'POST':
+        try:
+            appointment = Appointment.objects.get(appointment_id=appointment_id)
+            status = request.POST.get('status')
+            if status:
+                appointment.status = status
+                appointment.save()
+                return redirect(f'/doctor/{request.user.user_id}?message=Appointment {status.lower()} successfully.')
+        except Appointment.DoesNotExist:
+            return redirect(f'/doctor/{request.user.user_id}?message=Error updating appointment.')
 
-    except (Appointment.DoesNotExist, Doctor.DoesNotExist):
-        return render(request, '404.html', status=404)
-
-    # Accept status from GET or POST
-    status = request.POST.get('status') or request.GET.get('status')
-    if status:
-        appointment.status = status
-        appointment.save()
-        return redirect(f'/doctor/{doctor.user_id}?message=Appointment status updated successfully.')
-
-    return redirect(f'/doctor_info/{doctor.user_id}')
-
+    return redirect(f'/doctor/{request.user.user_id}')
 @login_required(login_url='login')
 def doctor_patient_view(request,patient_id):
     message = request.GET.get('message')
@@ -662,7 +659,7 @@ def doctor_patient_view(request,patient_id):
     except Appointment.DoesNotExist:
         appointments = None
     try:
-        medical_record = MedicalRecord.objects.get(patient_id=patient.patient_id)
+        medical_record = MedicalRecord.objects.filter(patient_id=patient.patient_id)
     except MedicalRecord.DoesNotExist:
         medical_record = None
     # Get the medical history for the patient
@@ -751,3 +748,48 @@ def save_prescription(request):
         return redirect(f'/doctor/{doctor.user.user_id}?message=Prescription saved')
 
     return redirect('/')
+
+
+@login_required(login_url='login')
+def save_review(request):
+    if request.method == 'POST':
+        appointment_id = request.POST.get('appointment_id')
+        doctor_id = request.POST.get('doctor_id')
+        patient_id = request.POST.get('patient_id')
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+
+        try:
+            appointment = Appointment.objects.get(appointment_id=appointment_id)
+            doctor = Doctor.objects.get(doctor_id=doctor_id)
+            patient = Patient.objects.get(patient_id=patient_id)
+
+            # Create the review
+            RatingReview.objects.create(
+                appointment=appointment,
+                doctor=doctor,
+                patient=patient,
+                rating=rating,
+                comment=comment
+            )
+
+            return redirect(f'/patient/{patient.user.user_id}?message=Review submitted successfully.')
+        except (Appointment.DoesNotExist, Doctor.DoesNotExist, Patient.DoesNotExist):
+            return redirect(f'/patient/{request.user.user_id}?message=Error submitting review.')
+
+    return redirect('home')
+
+@login_required(login_url='login')
+def admin_profile(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    # Check if the user is an admin
+    if request.user.role != 'admin':
+        return redirect('home')
+
+    # Fetch all doctors and patients
+    doctors = Doctor.objects.all()
+    patients = Patient.objects.all()
+
+    return render(request, 'admin_profile.html', {'doctors': doctors, 'patients': patients})

@@ -79,40 +79,49 @@
 
 
             <!-- Medical Record -->
+              <!-- Medical Record -->
             <div class="card mt-3">
                 <div class="card-header text-light" style="background-color: #00c4b4;">
                     Medical Record
                 </div>
                 <div class="card-body">
+                    <!-- Medical Record Table with Media -->
                     <table class="table" id="medicalRecordTable">
                         <thead>
                         <tr>
                             <th>Doctor ID</th>
                             <th>Doctor Name</th>
-                            <th>Diagnosis</th>+6
-                            3.
+                            <th>Diagnosis</th>
                             <th>Notes</th>
                             <th>Prescription</th>
-                            <th>Media</th> <!-- New column for media -->
+                            <th>Media</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>123</td>
-                            <td>Dr. Smith</td>
-                            <td>Flu</td>
-                            <td>Rest and hydration</td>
-                            <td>Paracetamol</td>
-                            <td><a href="../media/xray1.jpg" target="_blank">View</a></td> <!-- Example media link -->
-                        </tr>
-                        <tr>
-                            <td>456</td>
-                            <td>Dr. Johnson</td>
-                            <td>Back Pain</td>
-                            <td>Physical therapy recommended</td>
-                            <td>Ibuprofen</td>
-                            <td><a href="../media/mri1.jpg" target="_blank">View</a></td> <!-- Example media link -->
-                        </tr>
+                        {% for record in medical_record %}
+                            <tr>
+                                <td>{{ record.doctor.doctor_id }}</td>
+                                <td>Dr. {{ record.doctor.f_name }} {{ record.doctor.l_name }}</td>
+                                <td>{{ record.diagnosis }}</td>
+                                <td>{{ record.notes }}</td>
+                                <td>
+                                    {% for prescription in record.patient.prescription_set.all %}
+                                        {{ prescription.medication }}<br>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if record.file_path %}
+                                        <a href="{% static record.file_path|cut:'static/' %}" target="_blank">View</a>
+                                    {% else %}
+                                        No Media
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No medical records found.</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

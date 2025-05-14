@@ -117,9 +117,9 @@ MedicalRecord
 ```
 
 > Replace the preview above with an actual image once available:  
-```
+
 ![Entity Relationship Diagram](./erd.jpg)
-```
+
 
 ---
 

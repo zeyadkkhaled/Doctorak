@@ -1,0 +1,326 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Profile | {{ doctor.f_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'styles/doctor_info.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+<div class="h">
+    <div class="py-2 px-3 container-fluid">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-auto">
+                <a href="/">
+                    <img src="{% static 'imgs/logoso88.png' %}" alt="Doctorak" style="height: 80px;" />
+                </a>
+            </div>
+            <div class="col-auto d-flex">
+                {% if user.is_authenticated %}
+                    <a href="/profile/" class="btn btn-outline-light me-2 d-flex align-items-center">
+                        <i class="bi bi-person-circle me-2"></i>
+                        <span>Profile</span>
+                    </a>
+                    <form action="/logout/" method="post" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light d-flex align-items-center">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                {% else %}
+                    <button class="btn btn-outline-light d-flex align-items-center"
+                            data-bs-toggle="modal"
+                            data-bs-target="#loginModal">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        <span>Sign In</span>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #e8fffc;">
+            <div class="modal-header" style="background-color: #00c4b4;">
+                <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/login/" method="post">
+                    {% csrf_token %}
+                    <div class="alert alert-warning">Enter your account details!</div>
+                    <div class="form-group mb-3">
+                        <label for="email">Email address</label>
+                        <input type="email" name="email" class="form-control" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block w-100" style="background-color: #00c4b4;">Login</button>
+                </form>
+                <hr>
+                <p class="text-center">Don't have an account? <a href="/register">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container py-5">
+
+    <!-- Profile -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="profile-card bg-white">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ doctor.profile_picture.url }}" alt="{{ doctor.full_name }}" class="img-fluid h-full w-full object-cover">
+                    </div>
+                    <div class="col-md-8 p-5">
+                        <h1 class="text-3xl font-bold">{{ doctor.f_name }} {{ doctor.l_name }}</h1>
+                        <p class="text-blue-600">{{ doctor.speciality }}</p>
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= doctor.average_rating %} <i class="fas fa-star"></i>
+                                {% else %} <i class="far fa-star"></i> {% endif %}
+                            {% endfor %}
+                            <span class="text-gray-600">({{ doctor.review_count }} reviews)</span>
+                        </div>
+                        <div class="mt-3 text-gray-600">
+                            <p>{{ doctor.experience }} years experience</p>
+                            <p>{{ doctor.bio|default:"No bio available" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-4">
+            <!-- Clinic Info -->
+            <div class="bg-white p-4 mb-4 shadow rounded">
+                <h3>Clinic Information</h3>
+                <p><i class="fas fa-hospital text-blue-500 me-2"></i>{{ clinic.clinic_name }}</p>
+                <p><i class="fas fa-map-marker-alt text-blue-500 me-2"></i>{{ clinic.address }}, {{ clinic.city }}, {{ clinic.region }}</p>
+                <p><i class="fas fa-phone-alt text-blue-500 me-2"></i>{{ clinic.phone }}</p>
+                <p><i class="fas fa-money-bill-wave text-blue-500 me-2"></i>${{ clinic.examination_price }}</p>
+            </div>
+
+            <!-- Reviews -->
+            <div class="bg-white p-4 shadow rounded">
+                <h3>Patient Reviews</h3>
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-card p-3 mb-3">
+                            <strong>{{ review.patient.user.get_full_name }}</strong>
+                            <div class="rating-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star text-blue-500"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-gray-300"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p>{{ review.comment }}</p>
+                            <small class="text-gray-500">{{ review.date_issued|date:"F j, Y" }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No reviews yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-8">
+            <div class="bg-white p-4 shadow rounded">
+                <h3>Book an Appointment</h3>
+
+                <!-- Weekly Availability -->
+                <div class="row g-2 mb-4">
+                    {% for day in availability %}
+                        <div class="col-6 col-md-4">
+                            <div class="availability-day p-3 text-center rounded border {% if day.available %}border-blue-200 bg-blue-50{% else %}border-gray-200 bg-gray-50{% endif %}">
+                                <div>{{ day.day_name }}</div>
+                                <small>
+                                    {% if day.available %}
+                                        {{ day.start_time|time:"g:i A" }} - {{ day.end_time|time:"g:i A" }}
+                                    {% else %} Not available {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Booking Form -->
+                <form method="post" id="appointmentForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label>Select Date</label>
+                        <input type="date" class="form-control" id="datePicker" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Select Time</label>
+                        <select class="form-select" id="timeSlot" name="time" disabled required>
+                            <option>Select a date first</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Book Appointment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const datePicker = document.getElementById('datePicker');
+    datePicker.min = today;
+
+    const availability = {
+        {% for day in availability %}
+            '{{ day.day_name }}': {
+                available: {{ day.available|lower }},
+                start: '{{ day.start_time|time:"H:i" }}',
+                end: '{{ day.end_time|time:"H:i" }}',
+                duration: {{ day.duration }}
+            },
+        {% endfor %}
+    };
+
+    const exceptions = {
+        {% for ex in exception_dates %}
+            '{{ ex.date|date:"Y-m-d" }}': {
+                available: {{ ex.available|lower }},
+                start: '{{ ex.start_time|time:"H:i" }}',
+                end: '{{ ex.end_time|time:"H:i" }}'
+            },
+        {% endfor %}
+    };
+
+    // Initialize booked appointments object
+    const bookedAppointments = {};
+    {% for appt in appointments %}
+        if (!bookedAppointments['{{ appt.appointment_date|date:"Y-m-d" }}']) {
+            bookedAppointments['{{ appt.appointment_date|date:"Y-m-d" }}'] = [];
+        }
+        bookedAppointments['{{ appt.appointment_date|date:"Y-m-d" }}'].push('{{ appt.appointment_time|time:"H:i" }}');
+    {% endfor %}
+
+    datePicker.addEventListener('change', function() {
+        const selectedDate = this.value;
+        const dayName = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
+        const timeSlotSelect = document.getElementById('timeSlot');
+        let slots = [];
+
+        // Clear existing options
+        timeSlotSelect.innerHTML = '';
+
+        // Check if date is available
+        if (exceptions[selectedDate]) {
+            const ex = exceptions[selectedDate];
+            if (ex.available) {
+                slots = generateSlots(ex.start, ex.end, availability[dayName].duration);
+            }
+        } else if (availability[dayName] && availability[dayName].available) {
+            slots = generateSlots(
+                availability[dayName].start,
+                availability[dayName].end,
+                availability[dayName].duration
+            );
+        }
+
+        // Filter out booked slots
+        const bookedTimes = bookedAppointments[selectedDate] || [];
+        const availableSlots = slots.filter(slot => !bookedTimes.includes(slot.value));
+
+        if (availableSlots.length > 0) {
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select a time';
+            timeSlotSelect.appendChild(defaultOption);
+
+            // Add available time slots
+            availableSlots.forEach(slot => {
+                const option = document.createElement('option');
+                option.value = slot.value;
+                option.textContent = slot.display;
+                timeSlotSelect.appendChild(option);
+            });
+            timeSlotSelect.disabled = false;
+        } else {
+            const noSlotsOption = document.createElement('option');
+            noSlotsOption.value = '';
+            noSlotsOption.textContent = 'No available time slots';
+            timeSlotSelect.appendChild(noSlotsOption);
+            timeSlotSelect.disabled = true;
+        }
+    });
+
+    function generateSlots(start, end, duration) {
+        const slots = [];
+        let [currentHour, currentMinute] = start.split(':').map(Number);
+        let [endHour, endMinute] = end.split(':').map(Number);
+
+        while (
+            currentHour < endHour ||
+            (currentHour === endHour && currentMinute < endMinute)
+        ) {
+            const timeValue = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+
+            // Calculate end time for this slot
+            let slotEndMinute = currentMinute + duration;
+            let slotEndHour = currentHour;
+
+            if (slotEndMinute >= 60) {
+                slotEndHour += Math.floor(slotEndMinute / 60);
+                slotEndMinute %= 60;
+            }
+
+            const slotEndTime = `${String(slotEndHour).padStart(2, '0')}:${String(slotEndMinute).padStart(2, '0')}`;
+
+            slots.push({
+                value: timeValue,
+                display: `${format12h(timeValue)} - ${format12h(slotEndTime)}`
+            });
+
+            // Move to next slot
+            currentMinute += duration;
+            if (currentMinute >= 60) {
+                currentHour += Math.floor(currentMinute / 60);
+                currentMinute %= 60;
+            }
+        }
+        return slots;
+    }
+
+    function format12h(time) {
+        const [hours, minutes] = time.split(':').map(Number);
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const hours12 = hours % 12 || 12;
+        return `${hours12}:${String(minutes).padStart(2, '0')} ${period}`;
+    }
+});
+</script>
+<my-footer></my-footer>
+
+<script>
+    const static_url = "{% static '' %}";
+</script>
+<script src="{% static 'script/home.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

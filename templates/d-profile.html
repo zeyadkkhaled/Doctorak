@@ -55,7 +55,7 @@
                         data-bs-target="#editClinicInfoModal">Edit Clinic Info
 
                 </button>
-                 <!-- Logout Button -->
+                <!-- Logout Button -->
                 <a href="{% url 'logout' %}">
                     <button class="btn btn-danger mt-2" id="logoutButton"
                             style="background-color: #eebb4a; border-color: white; transition: background-color 0.2s;"
@@ -80,6 +80,7 @@
                     <p><strong>Speciality : </strong> <span id="displayGender">{{ doctor.speciality }}</span></p>
                     <p><strong>Contact:</strong> {{ doctor.phone }}</p>
                     <p><strong>Address:</strong> {{ doctor.address }}</p>
+                    <p><strong>Experience:</strong> {{ doctor.experience }} years</p>
                 </div>
             </div>
 
@@ -95,6 +96,11 @@
                         <p><strong>City:</strong> <span id="clinicCity">{{ clinics.city }}</span></p>
                         <p><strong>Region:</strong> <span id="clinicRegion">{{ clinics.region }}</span></p>
                         <p><strong>Location:</strong> <span id="clinicLocation">{{ clinics.address }}</span></p>
+                        <p><strong>Examination fee:</strong> <span
+                                id="examfee">{{ clinics.examination_price }} LE</span>
+                        </p>
+
+
                         <h4>Doctor Weekly Availability</h4>
 
                         <table class="table table-bordered table-striped">
@@ -192,46 +198,106 @@
                         <tr>
                             <th>Date</th>
                             <th>Time</th>
-                            <th>Patient ID</th> <!-- Added column for Patient ID -->
+                            <th>Patient ID</th>
                             <th>Patient</th>
                             <th>Status</th>
                             <th>Prescription</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>2023-10-15</td>
-                            <td>10:00 AM</td>
-                            <td>12345</td> <!-- Added Patient ID -->
-                            <td>John Doe</td>
-                            <td>Confirmed</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm add-prescription" data-bs-toggle="modal"
-                                        data-bs-target="#addPrescriptionModal">Add Prescription
-                                </button>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm cancel-appointment">Cancel</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2023-11-01</td>
-                            <td>2:00 PM</td>
-                            <td>67890</td> <!-- Added Patient ID -->
-                            <td>Jane Smith</td>
-                            <td>Pending</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm add-prescription" data-bs-toggle="modal"
-                                        data-bs-target="#addPrescriptionModal">Add Prescription
-                                </button>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm cancel-appointment">Cancel</button>
-                            </td>
-                        </tr>
+                        {% for appointment in appointments %}
+                            <tr id="appointment-{{  appointment.appointment_id }}">
+                                <td>{{ appointment.appointment_date|date:"Y-m-d" }}</td>
+                                <td>{{ appointment.appointment_time|time:"H:i" }}</td>
+                                <td>{{ appointment.patient.patient_id }} </td>
+                                <td>{{ appointment.patient.f_name }} {{ appointment.patient.l_name }}</td>
+                                <td>
+                                    <span class="badge {% if appointment.status == 'Confirmed' %}bg-success{% elif appointment.status == 'Pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ appointment.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if appointment.status == 'Confirmed' %}
+                                        <button class="btn btn-primary btn-sm add-prescription"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#addPrescriptionModal"
+                                                data-appointment-id="{{  appointment.appointment_id }}"
+                                                data-patient-id="{{ appointment.patient.patient_id }}"
+                                                data-doctor-id="{{ doctor.doctor_id }}">
+                                            {% if appointment.prescription %}
+                                                Edit Prescription
+                                            {% else %}
+                                                Add Prescription
+                                            {% endif %}
+                                        </button>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if appointment.status == 'Pending' %}
+                                        <a href="{% url 'appointment_status' appointment.appointment_id %}?status=Confirmed"
+                                           style="text-decoration: none;">
+                                            <button class="btn btn-success btn-sm confirm-appointment"
+                                                    data-appointment-id="{{  appointment.appointment_id }}">
+                                                <i class="bi bi-check-circle"></i> Confirm
+                                            </button>
+                                        </a>
+                                    {% endif %}
+                                    {% if appointment.status != 'Cancelled' %}
+                                        {% if appointment.status != 'Cancelled' %}
+                                            <a href="{% url 'appointment_status' appointment.appointment_id %}?status=Cancelled"
+                                               style="text-decoration: none;">
+                                                <button class="btn btn-danger btn-sm">
+                                                    <i class="bi bi-x-circle"></i> Cancel
+                                                </button>
+                                            </a>
+                                        {% endif %}
+
+                                        <a href="/doctor-patient-view/{{ appointment.patient.user.user_id }}"
+                                           class="btn btn-info btn-sm view-patient">
+                                            <i class="bi bi-person"></i> View Patient
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">No appointments scheduled.</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
+                </div>
+            </div>
+            {# patients reviews            #}
+            <div class="card mt-4">
+                <div class="card-header text-white" style="background-color: #00c4b4;">
+                    Patient Reviews
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="mb-3 border-bottom pb-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>{{ review.patient.f_name }} {{ review.patient.l_name }}</strong>
+                                        <span class="text-muted small">({{ review.date_issued|date:"Y-m-d" }})</span>
+                                    </div>
+                                    <div>
+                                        {% for star in "12345"|slice:":review.rating"|make_list %}
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        {% endfor %}
+                                        {% for star in "12345"|slice:"review.rating:"|make_list %}
+                                            <i class="bi bi-star text-muted"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="mt-2">{{ review.comment }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No reviews have been submitted yet.</p>
+                    {% endif %}
                 </div>
             </div>
 
@@ -240,339 +306,410 @@
                  aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addPrescriptionModalLabel">Add Prescription</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="addPrescriptionForm">
-                                <div class="mb-3">
-                                    <label for="patientId" class="form-label">Patient ID</label>
-                                    <input type="text" class="form-control" id="patientId" readonly>
-                                </div>
+                        <form id="addPrescriptionForm" method="POST" enctype="multipart/form-data"
+                              action="/save-prescription/">
+                            {% csrf_token %}
+
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addPrescriptionModalLabel">Add Prescription & Medical
+                                    Record</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <input type="hidden" name="appointment_id" id="appointmentId">
+                                <input type="hidden" name="patient_id" id="patientId">
+                                <input type="hidden" name="doctor_id" id="doctorId">
+
                                 <div class="mb-3">
                                     <label for="patientName" class="form-label">Patient Name</label>
                                     <input type="text" class="form-control" id="patientName" readonly>
                                 </div>
+
                                 <div class="mb-3">
-                                    <label for="prescriptionText" class="form-label">Write Prescription</label>
-                                    <textarea class="form-control" id="prescriptionText" rows="4"></textarea>
+                                    <label for="diagnosis" class="form-label">Diagnosis</label>
+                                    <input list="diagnosisList" class="form-control" name="diagnosis" id="diagnosis"
+                                           required>
+                                    <datalist id="diagnosisList">
+                                        <option value="Hypertension">
+                                        <option value="Diabetes">
+                                        <option value="Asthma">
+                                        <option value="Migraine">
+                                        <option value="Common Cold">
+                                    </datalist>
                                 </div>
+
                                 <div class="mb-3">
-                                    <label for="prescriptionFile" class="form-label">Upload File</label>
-                                    <input type="file" class="form-control" id="prescriptionFile">
+                                    <label for="notes" class="form-label">Doctor Notes</label>
+                                    <textarea class="form-control" name="notes" id="notes" rows="2" maxlength="300"
+                                              placeholder="Optional"></textarea>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-success" id="savePrescription">Save Prescription
-                            </button>
-                        </div>
+
+                                <div class="mb-3">
+                                    <label for="treatment" class="form-label">Treatment</label>
+                                    <textarea class="form-control" name="treatment" id="treatment" rows="2"
+                                              required></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="medication" class="form-label">Prescription</label>
+                                    <input list="medications" class="form-control" name="medication" id="medication"
+                                           required>
+                                    <datalist id="medications">
+                                        <option value="Paracetamol 500mg">
+                                        <option value="Ibuprofen 400mg">
+                                        <option value="Amoxicillin 250mg">
+                                        <option value="Ciprofloxacin 500mg">
+                                        <option value="Omeprazole 20mg">
+                                    </datalist>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="recordFile" class="form-label">Attach File (PDF/Image)</label>
+                                    <input type="file" class="form-control" name="record_file" id="recordFile"
+                                           accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-success">Save</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
 
         </div>
     </div>
-</div>
 
-<!-- Edit Personal Info Modal -->
-<div class="modal fade" id="editInfoModal" tabindex="-1" aria-labelledby="editInfoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editInfoModalLabel">Edit Personal Information</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Edit Personal Info Modal -->
+    <div class="modal fade" id="editInfoModal" tabindex="-1" aria-labelledby="editInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editInfoModalLabel">Edit Personal Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'edit_doctor_profile' doctor.user_id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="inputName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="inputName" name="first_name"
+                                   value="{{ doctor.f_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="inputLastName" name="last_name"
+                                   value="{{ doctor.l_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputDOB" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="inputDOB" name="dob"
+                                   value="{{ doctor.dob|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputGender" class="form-label">Gender</label>
+                            <select class="form-select" id="inputGender" name="gender" required>
+                                <option value="Male" {% if doctor.gender == 'Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if doctor.gender == 'Female' %}selected{% endif %}>Female
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputContact" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="inputContact" name="phone"
+                                   value="{{ doctor.phone }}"
+                                   required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputAddress" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="inputAddress" name="address"
+                                   value="{{ doctor.address }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputSpeciality" class="form-label">Speciality</label>
+                            <select class="form-select" id="inputSpeciality" name="speciality" required>
+                                <option value="">Select Speciality</option>
+                                <option value="Pediatrics & Newborn"
+                                        {% if doctor.speciality == 'Pediatrics & Newborn' %}selected{% endif %}>
+                                    Pediatrics &
+                                    Newborn
+                                </option>
+                                <option value="Internal Medicine"
+                                        {% if doctor.speciality == 'Internal Medicine' %}selected{% endif %}>Internal
+                                    Medicine
+                                </option>
+                                <option value="Obstetrics & Gynecology"
+                                        {% if doctor.speciality == 'Obstetrics & Gynecology' %}selected{% endif %}>
+                                    Obstetrics & Gynecology
+                                </option>
+                                <option value="Dentistry" {% if doctor.speciality == 'Dentistry' %}selected{% endif %}>
+                                    Dentistry
+                                </option>
+                                <option value="Cardiology"
+                                        {% if doctor.speciality == 'Cardiology' %}selected{% endif %}>
+                                    Cardiology
+                                </option>
+                                <option value="Orthopedics"
+                                        {% if doctor.speciality == 'Orthopedics' %}selected{% endif %}>
+                                    Orthopedics
+                                </option>
+                                <option value="ENT" {% if doctor.speciality == 'ENT' %}selected{% endif %}>ENT</option>
+                                <option value="General Surgery"
+                                        {% if doctor.speciality == 'General Surgery' %}selected{% endif %}>General
+                                    Surgery
+                                </option>
+                                <option value="Neurology" {% if doctor.speciality == 'Neurology' %}selected{% endif %}>
+                                    Neurology
+                                </option>
+                                <option value="Dermatology"
+                                        {% if doctor.speciality == 'Dermatology' %}selected{% endif %}>
+                                    Dermatology
+                                </option>
+                                <option value="Ophthalmology"
+                                        {% if doctor.speciality == 'Ophthalmology' %}selected{% endif %}>Ophthalmology
+                                </option>
+                                <option value="Oncology" {% if doctor.speciality == 'Oncology' %}selected{% endif %}>
+                                    Oncology
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputExperience" class="form-label">Experience (years)</label>
+                            <input type="number" class="form-control" id="inputExperience" name="experience"
+                                   value="{{ doctor.experience }}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </div>
+                </form>
             </div>
-            <form method="POST" action="{% url 'edit_doctor_profile' doctor.user_id %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="inputName" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="inputName" name="first_name"
-                               value="{{ doctor.f_name }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputLastName" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="inputLastName" name="last_name"
-                               value="{{ doctor.l_name }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputDOB" class="form-label">Date of Birth</label>
-                        <input type="date" class="form-control" id="inputDOB" name="dob"
-                               value="{{ doctor.dob|date:'Y-m-d' }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputGender" class="form-label">Gender</label>
-                        <select class="form-select" id="inputGender" name="gender" required>
-                            <option value="Male" {% if doctor.gender == 'Male' %}selected{% endif %}>Male</option>
-                            <option value="Female" {% if doctor.gender == 'Female' %}selected{% endif %}>Female</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputContact" class="form-label">Phone Number</label>
-                        <input type="tel" class="form-control" id="inputContact" name="phone" value="{{ doctor.phone }}"
-                               required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputAddress" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="inputAddress" name="address"
-                               value="{{ doctor.address }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputSpeciality" class="form-label">Speciality</label>
-                        <select class="form-select" id="inputSpeciality" name="speciality" required>
-                            <option value="">Select Speciality</option>
-                            <option value="Pediatrics & Newborn"
-                                    {% if doctor.speciality == 'Pediatrics & Newborn' %}selected{% endif %}>Pediatrics &
-                                Newborn
-                            </option>
-                            <option value="Internal Medicine"
-                                    {% if doctor.speciality == 'Internal Medicine' %}selected{% endif %}>Internal
-                                Medicine
-                            </option>
-                            <option value="Obstetrics & Gynecology"
-                                    {% if doctor.speciality == 'Obstetrics & Gynecology' %}selected{% endif %}>
-                                Obstetrics & Gynecology
-                            </option>
-                            <option value="Dentistry" {% if doctor.speciality == 'Dentistry' %}selected{% endif %}>
-                                Dentistry
-                            </option>
-                            <option value="Cardiology" {% if doctor.speciality == 'Cardiology' %}selected{% endif %}>
-                                Cardiology
-                            </option>
-                            <option value="Orthopedics" {% if doctor.speciality == 'Orthopedics' %}selected{% endif %}>
-                                Orthopedics
-                            </option>
-                            <option value="ENT" {% if doctor.speciality == 'ENT' %}selected{% endif %}>ENT</option>
-                            <option value="General Surgery"
-                                    {% if doctor.speciality == 'General Surgery' %}selected{% endif %}>General Surgery
-                            </option>
-                            <option value="Neurology" {% if doctor.speciality == 'Neurology' %}selected{% endif %}>
-                                Neurology
-                            </option>
-                            <option value="Dermatology" {% if doctor.speciality == 'Dermatology' %}selected{% endif %}>
-                                Dermatology
-                            </option>
-                            <option value="Ophthalmology"
-                                    {% if doctor.speciality == 'Ophthalmology' %}selected{% endif %}>Ophthalmology
-                            </option>
-                            <option value="Oncology" {% if doctor.speciality == 'Oncology' %}selected{% endif %}>
-                                Oncology
-                            </option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputExperience" class="form-label">Experience (years)</label>
-                        <input type="number" class="form-control" id="inputExperience" name="experience"
-                               value="{{ doctor.experience }}" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
 
 
-<!-- Edit Clinic Info Modal -->
-<div class="modal fade" id="editClinicInfoModal" tabindex="-1" aria-labelledby="editClinicInfoModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editClinicInfoModalLabel">Edit Clinic Information</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="POST" action="{% url 'edit_clinic_profile' clinics.clinic_id %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="inputClinicPhone" class="form-label">Phone Number</label>
-                        <input type="tel" class="form-control" id="inputClinicPhone" name="phone_number"
-                               value="{{ clinics.phone }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Clinic Location</label>
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <label for="country" class="form-label">Country</label>
-                                <select id="country" name="country" class="form-select" required>
-                                    <option value="">Select Country</option>
-                                    <option value="egypt" {% if clinics.country|lower == 'egypt' %}selected{% endif %}>
-                                        Egypt
-                                    </option>
-                                    <option value="saudi" {% if clinics.country|lower == 'saudi' %}selected{% endif %}>
-                                        Saudi Arabia
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="city" class="form-label">City</label>
-                                <select id="city" name="city" class="form-select" required>
-                                    {% if clinics.country|lower == 'egypt' %}
-                                        <option value="" {% if not clinics.city %}selected{% endif %}>Select City
+    <!-- Edit Clinic Info Modal -->
+    <div class="modal fade" id="editClinicInfoModal" tabindex="-1" aria-labelledby="editClinicInfoModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editClinicInfoModalLabel">Edit Clinic Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'edit_clinic_profile' clinics.clinic_id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="inputClinicPhone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="inputClinicPhone" name="phone_number"
+                                   value="{{ clinics.phone }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Clinic Location</label>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label for="country" class="form-label">Country</label>
+                                    <select id="country" name="country" class="form-select" required>
+                                        <option value="">Select Country</option>
+                                        <option value="egypt"
+                                                {% if clinics.country|lower == 'egypt' %}selected{% endif %}>
+                                            Egypt
                                         </option>
-                                        <option value="Cairo" {% if clinics.city == 'Cairo' %}selected{% endif %}>
-                                            Cairo
+                                        <option value="saudi"
+                                                {% if clinics.country|lower == 'saudi' %}selected{% endif %}>
+                                            Saudi Arabia
                                         </option>
-                                        <option value="Alexandria"
-                                                {% if clinics.city == 'Alexandria' %}selected{% endif %}>Alexandria
-                                        </option>
-                                        <option value="Giza" {% if clinics.city == 'Giza' %}selected{% endif %}>Giza
-                                        </option>
-                                        <option value="Port Said"
-                                                {% if clinics.city == 'Port Said' %}selected{% endif %}>Port Said
-                                        </option>
-                                        <option value="Suez" {% if clinics.city == 'Suez' %}selected{% endif %}>Suez
-                                        </option>
-                                    {% elif clinics.country|lower == 'saudi' %}
-                                        <option value="" {% if not clinics.city %}selected{% endif %}>Select City
-                                        </option>
-                                        <option value="Riyadh" {% if clinics.city == 'Riyadh' %}selected{% endif %}>
-                                            Riyadh
-                                        </option>
-                                        <option value="Jeddah" {% if clinics.city == 'Jeddah' %}selected{% endif %}>
-                                            Jeddah
-                                        </option>
-                                        <option value="Mecca" {% if clinics.city == 'Mecca' %}selected{% endif %}>
-                                            Mecca
-                                        </option>
-                                        <option value="Medina" {% if clinics.city == 'Medina' %}selected{% endif %}>
-                                            Medina
-                                        </option>
-                                        <option value="Dammam" {% if clinics.city == 'Dammam' %}selected{% endif %}>
-                                            Dammam
-                                        </option>
-                                    {% endif %}
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="region" class="form-label">Region</label>
-                                <select id="region" name="region" class="form-select" required
-                                        data-previous="{{ clinics.region }}">
-                                    <option value="">Select Region</option>
-                                </select>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="city" class="form-label">City</label>
+                                    <select id="city" name="city" class="form-select" required>
+                                        {% if clinics.country|lower == 'egypt' %}
+                                            <option value="" {% if not clinics.city %}selected{% endif %}>Select City
+                                            </option>
+                                            <option value="Cairo" {% if clinics.city == 'Cairo' %}selected{% endif %}>
+                                                Cairo
+                                            </option>
+                                            <option value="Alexandria"
+                                                    {% if clinics.city == 'Alexandria' %}selected{% endif %}>Alexandria
+                                            </option>
+                                            <option value="Giza" {% if clinics.city == 'Giza' %}selected{% endif %}>Giza
+                                            </option>
+                                            <option value="Port Said"
+                                                    {% if clinics.city == 'Port Said' %}selected{% endif %}>Port Said
+                                            </option>
+                                            <option value="Suez" {% if clinics.city == 'Suez' %}selected{% endif %}>Suez
+                                            </option>
+                                        {% elif clinics.country|lower == 'saudi' %}
+                                            <option value="" {% if not clinics.city %}selected{% endif %}>Select City
+                                            </option>
+                                            <option value="Riyadh" {% if clinics.city == 'Riyadh' %}selected{% endif %}>
+                                                Riyadh
+                                            </option>
+                                            <option value="Jeddah" {% if clinics.city == 'Jeddah' %}selected{% endif %}>
+                                                Jeddah
+                                            </option>
+                                            <option value="Mecca" {% if clinics.city == 'Mecca' %}selected{% endif %}>
+                                                Mecca
+                                            </option>
+                                            <option value="Medina" {% if clinics.city == 'Medina' %}selected{% endif %}>
+                                                Medina
+                                            </option>
+                                            <option value="Dammam" {% if clinics.city == 'Dammam' %}selected{% endif %}>
+                                                Dammam
+                                            </option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="region" class="form-label">Region</label>
+                                    <select id="region" name="region" class="form-select" required
+                                            data-previous="{{ clinics.region }}">
+                                        <option value="">Select Region</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputClinicStreet" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="inputClinicStreet" name="address"
-                               value="{{ clinics.address }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Working Days and Hours</label>
-                        <!-- Default hours section -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="working-hours-start" class="form-label">Default Start Time</label>
-                                <input type="time" id="working-hours-start" name="working_hours_start"
-                                       class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="working-hours-end" class="form-label">Default End Time</label>
-                                <input type="time" id="working-hours-end" name="working_hours_end" class="form-control">
-                            </div>
+                        <div class="mb-3">
+                            <label for="inputClinicStreet" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="inputClinicStreet" name="address"
+                                   value="{{ clinics.address }}" required>
                         </div>
-
-                        <!-- Working days selection -->
-                        <div id="working-days-container">
+                        <div class="modal-body">
                             <div class="mb-3">
-                                <label class="form-label">Select Working Days</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    {% for day in "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"|split:"," %}
-                                        <div class="form-check d-flex align-items-center">
-                                            <input class="form-check-input me-2 working-day-checkbox" type="checkbox"
-                                                   id="day{{ day }}" value="{{ day }}"
-                                                    {% for avail in weekly_availabilities %}
-                                                   {% if avail.day_of_week == day %}checked{% endif %}
-                                                    {% endfor %}
-                                                   style="width: 16px; height: 16px;">
-                                            <label class="form-check-label" for="day{{ day }}">{{ day }}</label>
+                                <label for="examinationFee" class="form-label">Examination Fee</label>
+                                <input
+                                        type="number"
+                                        step="0.01"
+                                        class="form-control"
+                                        id="examinationFee"
+                                        name="examination_price"
+                                        value="{{ clinics.examination_price }}"
+                                        required
+                                >
+                            </div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label class="form-label">Working Days and Hours</label>
+                            <!-- Default hours section -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="working-hours-start" class="form-label">Default Start Time</label>
+                                    <input type="time" id="working-hours-start" name="working_hours_start"
+                                           class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="working-hours-end" class="form-label">Default End Time</label>
+                                    <input type="time" id="working-hours-end" name="working_hours_end"
+                                           class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Working days selection -->
+                            <div id="working-days-container">
+                                <div class="mb-3">
+                                    <label class="form-label">Select Working Days</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for day in "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"|split:"," %}
+                                            <div class="form-check d-flex align-items-center">
+                                                <input class="form-check-input me-2 working-day-checkbox"
+                                                       type="checkbox"
+                                                       id="day{{ day }}" value="{{ day }}"
+                                                        {% for avail in weekly_availabilities %}
+                                                       {% if avail.day_of_week == day %}checked{% endif %}
+                                                        {% endfor %}
+                                                       style="width: 16px; height: 16px;">
+                                                <label class="form-check-label" for="day{{ day }}">{{ day }}</label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary" id="apply-hours">Apply Hours to Selected
+                                    Days
+                                </button>
+                            </div>
+
+                            <!-- Selected days display -->
+                            <div id="selected-days-container" class="mt-3">
+                                {% for avail in weekly_availabilities %}
+                                    <div id="selected-{{ avail.day_of_week }}">
+                                        <strong>{{ avail.day_of_week }}:</strong> {{ avail.start_time|time:"H:i" }}
+                                        - {{ avail.end_time|time:"H:i" }}
+                                        <input type="hidden" name="{{ avail.day_of_week|lower }}_start"
+                                               value="{{ avail.start_time|time:'H:i' }}">
+                                        <input type="hidden" name="{{ avail.day_of_week|lower }}_end"
+                                               value="{{ avail.end_time|time:'H:i' }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Exception Days Section -->
+                            <div class="mb-3">
+                                <label class="form-label mt-3">Exception Days</label>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label for="exception-date" class="form-label">Date</label>
+                                        <input type="date" id="exception-date" name="new_exception_date"
+                                               class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="exception-start" class="form-label">Start Time</label>
+                                        <input type="time" id="exception-start" name="new_exception_start"
+                                               class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="exception-end" class="form-label">End Time</label>
+                                        <input type="time" id="exception-end" name="new_exception_end"
+                                               class="form-control">
+                                    </div>
+                                </div>
+                                <p style="color: red">**Please note if you selected a day without selecting start or end
+                                    time it will be considered off day**</p>
+                                <button type="button" class="btn btn-secondary mt-2" id="add-exception-hour">Add
+                                    Exception
+                                </button>
+                                <div id="exception-hours-container" class="mt-3">
+                                    {% for exception in exception_hours %}
+                                        <div class="exception-entry mb-2">
+                                            <strong>{{ exception.date|date:"Y-m-d" }}:</strong>
+                                            {% if exception.override_start_time %}
+                                                {{ exception.override_start_time|time:"H:i" }}{% else %}Off{% endif %}
+                                            {% if exception.override_start_time and exception.override_end_time %}
+                                                -{% endif %}
+                                            {% if exception.override_end_time %}
+                                                {{ exception.override_end_time|time:"H:i" }}{% endif %}
+                                            <button type="button" class="btn btn-danger btn-sm ms-2"
+                                                    onclick="this.parentElement.remove()">Remove
+                                            </button>
+                                            <input type="hidden" name="new_exception_date"
+                                                   value="{{ exception.date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="new_exception_start"
+                                                   value="{{ exception.override_start_time|time:'H:i'|default:'' }}">
+                                            <input type="hidden" name="new_exception_end"
+                                                   value="{{ exception.override_end_time|time:'H:i'|default:'' }}">
                                         </div>
                                     {% endfor %}
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-secondary" id="apply-hours">Apply Hours to Selected
-                                Days
-                            </button>
-                        </div>
-
-                        <!-- Selected days display -->
-                        <div id="selected-days-container" class="mt-3">
-                            {% for avail in weekly_availabilities %}
-                                <div id="selected-{{ avail.day_of_week }}">
-                                    <strong>{{ avail.day_of_week }}:</strong> {{ avail.start_time|time:"H:i" }}
-                                    - {{ avail.end_time|time:"H:i" }}
-                                    <input type="hidden" name="{{ avail.day_of_week|lower }}_start"
-                                           value="{{ avail.start_time|time:'H:i' }}">
-                                    <input type="hidden" name="{{ avail.day_of_week|lower }}_end"
-                                           value="{{ avail.end_time|time:'H:i' }}">
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Exception Days Section -->
-                        <div class="mb-3">
-                            <label class="form-label mt-3">Exception Days</label>
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <label for="exception-date" class="form-label">Date</label>
-                                    <input type="date" id="exception-date" name="new_exception_date"
-                                           class="form-control">
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="exception-start" class="form-label">Start Time</label>
-                                    <input type="time" id="exception-start" name="new_exception_start"
-                                           class="form-control">
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="exception-end" class="form-label">End Time</label>
-                                    <input type="time" id="exception-end" name="new_exception_end" class="form-control">
-                                </div>
-                            </div>
-                            <p style="color: red">**Please note if you selected a day without selecting start or end
-                                time it will be considered off day**</p>
-                            <button type="button" class="btn btn-secondary mt-2" id="add-exception-hour">Add Exception
-                            </button>
-                            <div id="exception-hours-container" class="mt-3">
-                                {% for exception in exception_hours %}
-                                    <div class="exception-entry mb-2">
-                                        <strong>{{ exception.date|date:"Y-m-d" }}:</strong>
-                                        {% if exception.override_start_time %}
-                                            {{ exception.override_start_time|time:"H:i" }}{% else %}Off{% endif %}
-                                        {% if exception.override_start_time and exception.override_end_time %}
-                                            -{% endif %}
-                                        {% if exception.override_end_time %}
-                                            {{ exception.override_end_time|time:"H:i" }}{% endif %}
-                                        <button type="button" class="btn btn-danger btn-sm ms-2"
-                                                onclick="this.parentElement.remove()">Remove
-                                        </button>
-                                        <input type="hidden" name="new_exception_date"
-                                               value="{{ exception.date|date:'Y-m-d' }}">
-                                        <input type="hidden" name="new_exception_start"
-                                               value="{{ exception.override_start_time|time:'H:i'|default:'' }}">
-                                        <input type="hidden" name="new_exception_end"
-                                               value="{{ exception.override_end_time|time:'H:i'|default:'' }}">
-                                    </div>
-                                {% endfor %}
-                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                </div>
-            </form>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 </div>
 
 <!-- Footer Component -->
@@ -580,6 +717,7 @@
 
 <!-- Scripts -->
 <script>
+    // Function to handle the profile picture upload
     function submitProfilePic() {
         const fileInput = document.getElementById('profile_picture');
         if (fileInput.files && fileInput.files[0]) {
@@ -672,6 +810,104 @@
         document.getElementById('exception-start').value = '';
         document.getElementById('exception-end').value = '';
     });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Form validation for appointment booking
+        const appointmentForm = document.getElementById('appointmentForm');
+        if (appointmentForm) {
+            appointmentForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                let isValid = true;
+
+                const datePicker = document.getElementById('datePicker');
+                const timeSlot = document.getElementById('timeSlot');
+
+                // Reset validation states
+                datePicker.classList.remove('is-invalid');
+                timeSlot.classList.remove('is-invalid');
+
+                // Validate date
+                if (!datePicker.value) {
+                    datePicker.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                // Validate time slot
+                if (!timeSlot.value) {
+                    timeSlot.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    this.submit();
+                }
+            });
+        }
+
+        // Clinic edit form validation
+        const clinicEditForm = document.getElementById('editClinicForm');
+        if (clinicEditForm) {
+            clinicEditForm.addEventListener('submit', function (e) {
+                const examinationFee = document.getElementById('examinationFee');
+                const clinicPhone = document.getElementById('clinicPhone');
+
+                let isValid = true;
+
+                // Validate examination fee
+                if (examinationFee.value < 0) {
+                    examinationFee.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    examinationFee.classList.remove('is-invalid');
+                }
+
+                // Validate phone number format
+                const phoneRegex = /^\+?[\d\s-]{8,}$/;
+                if (!phoneRegex.test(clinicPhone.value)) {
+                    clinicPhone.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    clinicPhone.classList.remove('is-invalid');
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+    document.querySelectorAll('.add-prescription').forEach(button => {
+  button.addEventListener('click', function () {
+    const row = this.closest('tr');
+    document.getElementById('appointmentId').value = this.getAttribute('data-appointment-id');
+    document.getElementById('patientId').value = this.getAttribute('data-patient-id');
+    document.getElementById('doctorId').value = this.getAttribute('data-doctor-id'); // set this dynamically if not already
+    document.getElementById('patientName').value = row.querySelector('td:nth-child(4)').innerText.trim();
+  });
+});
+    function openPrescriptionModal(appointmentId, patientId, patientName, doctorId) {
+    document.getElementById('appointmentId').value = appointmentId;
+    document.getElementById('patientId').value = patientId;
+    document.getElementById('patientName').value = patientName;
+    document.getElementById('doctorId').value = doctorId;
+}
+
+document.querySelectorAll('.add-prescription').forEach(button => {
+    button.addEventListener('click', function() {
+        // Get data attributes from button
+        const appointmentId = this.getAttribute('data-appointment-id');
+        const patientId = this.getAttribute('data-patient-id');
+        const doctorId = this.getAttribute('data-doctor-id');
+
+        // Get patient name from table row
+        const patientName = this.closest('tr').querySelector('td:nth-child(4)').textContent.trim();
+
+        // Set hidden input values
+        document.getElementById('appointmentId').value = appointmentId;
+        document.getElementById('patientId').value = patientId;
+        document.getElementById('doctorId').value = doctorId;
+        document.getElementById('patientName').value = patientName;
+    });
+});
 </script>
 <script src="{% static 'script/home.js' %}"></script>
 <script src="{% static 'script/profile.js' %}"></script>

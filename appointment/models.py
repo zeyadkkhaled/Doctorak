@@ -54,7 +54,12 @@ class Clinic(models.Model):
     region = models.CharField(max_length=50)
     phone = models.CharField(max_length=20)
     working_hours = models.CharField(max_length=100)
-
+    examination_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        verbose_name="Examination Price"
+    )
     class Meta:
         db_table = 'clinic'
         managed = False
@@ -166,6 +171,7 @@ class MedicalRecord(models.Model):
     notes = models.TextField()
     treatment = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
+    file_path = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         db_table = 'medical_record'

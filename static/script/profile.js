@@ -121,38 +121,38 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeWorkingHours();
 
     // Exception hours
-    const addExceptionBtn = document.getElementById('add-exception-hour');
-    const exceptionContainer = document.getElementById('exception-hours-container');
-
-    if (addExceptionBtn) {
-        addExceptionBtn.addEventListener('click', function () {
-            const date = document.getElementById('exception-date').value;
-            const startTime = document.getElementById('exception-start').value;
-            const endTime = document.getElementById('exception-end').value;
-
-            if (!date) {
-                alert('Please select a date');
-                return;
-            }
-
-            const tempId = 'new_' + Date.now();
-            const exceptionDiv = document.createElement('div');
-            exceptionDiv.id = `exception-${tempId}`;
-            exceptionDiv.innerHTML = `
-                <strong>${date}:</strong> ${startTime || 'Off'} ${startTime && endTime ? '-' : ''} ${endTime || ''}
-                <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeException('${tempId}')">Remove</button>
-                <input type="hidden" name="exception_${tempId}_date" value="${date}">
-                ${startTime ? `<input type="hidden" name="exception_${tempId}_start" value="${startTime}">` : ''}
-                ${endTime ? `<input type="hidden" name="exception_${tempId}_end" value="${endTime}">` : ''}
-            `;
-
-            exceptionContainer.appendChild(exceptionDiv);
-
-            document.getElementById('exception-date').value = '';
-            document.getElementById('exception-start').value = '';
-            document.getElementById('exception-end').value = '';
-        });
-    }
+    // const addExceptionBtn = document.getElementById('add-exception-hour');
+    // const exceptionContainer = document.getElementById('exception-hours-container');
+    //
+    // if (addExceptionBtn) {
+    //     addExceptionBtn.addEventListener('click', function () {
+    //         const date = document.getElementById('exception-date').value;
+    //         const startTime = document.getElementById('exception-start').value;
+    //         const endTime = document.getElementById('exception-end').value;
+    //
+    //         if (!date) {
+    //             alert('Please select a date');
+    //             return;
+    //         }
+    //
+    //         const tempId = 'new_' + Date.now();
+    //         const exceptionDiv = document.createElement('div');
+    //         exceptionDiv.id = `exception-${tempId}`;
+    //         exceptionDiv.innerHTML = `
+    //             <strong>${date}:</strong> ${startTime || 'Off'} ${startTime && endTime ? '-' : ''} ${endTime || ''}
+    //             <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeException('${tempId}')">Remove</button>
+    //             <input type="hidden" name="exception_${tempId}_date" value="${date}">
+    //             ${startTime ? `<input type="hidden" name="exception_${tempId}_start" value="${startTime}">` : ''}
+    //             ${endTime ? `<input type="hidden" name="exception_${tempId}_end" value="${endTime}">` : ''}
+    //         `;
+    //
+    //         exceptionContainer.appendChild(exceptionDiv);
+    //
+    //         document.getElementById('exception-date').value = '';
+    //         document.getElementById('exception-start').value = '';
+    //         document.getElementById('exception-end').value = '';
+    //     });
+    // }
 });
 
 // Working hours management

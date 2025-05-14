@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
-from django.shortcuts import render
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path('',views.home,name='home'),
     path('register/',views.register,name='register'),
@@ -17,4 +17,9 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('patient/<str:patient_id>/edit', views.edit_patient_profile, name='edit_patient_profile'),
     path('patient/<str:patient_id>/edit_medical_history', views.edit_medical_history, name='edit_medical_history'),
+    path('doctors/', views.doctor_list, name='doctor_list'),
+    path('doctor_info/<str:doctor_id>/', views.doctor_info, name='doctor_info'),
+    path('doctor/<str:appointment_id>/appointments/', views.appointment_status, name='appointment_status'),
+    path('doctor-patient-view/<str:patient_id>/', views.doctor_patient_view, name='doctor_patient_view'),
+    path('save-prescription/', views.save_prescription, name='save_-rescription'),
 ]

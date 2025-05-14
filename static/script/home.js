@@ -120,74 +120,82 @@ class myheader extends HTMLElement {
             </div>
 
             <!-- Search Filters -->
-            <div class="container mt-4 py-3 px-4 rounded" style="background-color:rgba(8, 196, 180, 0.87);">
-                <div class="row g-2 mb-2 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label d-flex align-items-center">
-                            <i class="bi bi-globe-americas"></i>
-                            Country
-                        </label>
-                        <select id="country" class="form-select">
-                            <option value="">Select Country</option>
-                            <option value="egypt">Egypt</option>
-                            <option value="saudi">Saudi Arabia</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label d-flex align-items-center">
-                            <i class="bi bi-geo-fill"></i>
-                            City
-                        </label>
-                        <select id="city" class="form-select" disabled>
-                            <option value="">Select City</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label d-flex align-items-center">
-                            <i class="bi bi-geo-alt-fill"></i>
-                            Region
-                        </label>
-                        <select id="region" class="form-select" disabled>
-                            <option value="">Select Region</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label d-flex align-items-center">
-                            <img src="${static_url}imgs/spec.png" alt="Specialty Icon" style="width: 20px; height: 20px; margin-right: 6px;">
-                            Specialty
-                        </label>
-                        <select class="form-select">
-                            <option value="">Specialty</option>
-                            <option>Pediatrics & Newborn</option>
-                            <option>Internal Medicine</option>
-                            <option>Obstetrics & Gynecology</option>
-                            <option>Dentistry</option>
-                            <option>Cardiology</option>
-                            <option>Orthopedics</option>
-                            <option>ENT</option>
-                            <option>General Surgery</option>
-                            <option>Neurology</option>
-                            <option>Dermatology</option>
-                            <option>Oncology</option>
-                            <option>Ophthalmology</option>
-                        </select>
-                    </div>
-                </div>
+           <form method="get" action="${DOCTOR_LIST_URL}">
+  <div class="container mt-4 py-3 px-4 rounded" 
+       style="background-color:rgba(8, 196, 180, 0.87);">
+    <div class="row g-2 mb-2 align-items-end">
+      <div class="col-md-3">
+        <label for="country" class="form-label d-flex align-items-center">
+          <i class="bi bi-globe-americas"></i>
+          Country
+        </label>
+        <select id="country" name="country" class="form-select">
+          <option value="">Select Country</option>
+          <option value="Egypt">Egypt</option>
+          <option value="Saudi Arabia">Saudi Arabia</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="city" class="form-label d-flex align-items-center">
+          <i class="bi bi-geo-fill"></i>
+          City
+        </label>
+        <select id="city" name="city" class="form-select" disabled>
+          <option value="">Select City</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="region" class="form-label d-flex align-items-center">
+          <i class="bi bi-geo-alt-fill"></i>
+          Region
+        </label>
+        <select id="region" name="region" class="form-select" disabled>
+          <option value="">Select Region</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="specialty" class="form-label d-flex align-items-center">
+          <img src="${static_url}imgs/spec.png" 
+               alt="Specialty Icon" 
+               style="width: 20px; height: 20px; margin-right: 6px;">
+          Specialty
+        </label>
+        <select id="speciality" name="specialty" class="form-select">
+          <option value="">Specialty</option>
+          <option>Pediatrics & Newborn</option>
+          <option>Internal Medicine</option>
+          <option>Obstetrics & Gynecology</option>
+          <option>Dentistry</option>
+          <option>Cardiology</option>
+          <option>Orthopedics</option>
+          <option>ENT</option>
+          <option>General Surgery</option>
+          <option>Neurology</option>
+          <option>Dermatology</option>
+          <option>Oncology</option>
+          <option>Ophthalmology</option>
+        </select>
+      </div>
+    </div>
 
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-10">
-                        <input type="text" class="form-control" placeholder="Search by doctor name (optional)" />
-                    </div>
-                    <div class="col-md-2 text-end">
-                        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center" 
-                                style="background-color: #d9edea;" 
-                                onclick="window.location.href='../pages/spec.html'">
-                            <i class="bi bi-search" style="color:black;"></i>
-                            <span style="color: black;">Search</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <div class="row g-2 align-items-end">
+      <div class="col-md-10">
+        <input name="name" 
+               type="text" 
+               class="form-control" 
+               placeholder="Search by doctor name (optional)" />
+      </div>
+      <div class="col-md-2 text-end">
+        <button type="submit" 
+                class="btn btn-primary w-100 d-flex align-items-center justify-content-center" 
+                style="background-color: #d9edea;">
+          <i class="bi bi-search" style="color:black;"></i>
+          <span style="color: black;">Search</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
 
             <!-- Login Modal -->
             <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -410,17 +418,17 @@ document.querySelectorAll('.book-btn').forEach(button => {
 });
 
 
-document.querySelectorAll('.specialty-card').forEach(card => {
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', () => {
-        const specialty = encodeURIComponent(card.getAttribute('data-specialty'));
-        window.location.href = `spec.html?specialty=${specialty}`;
-    });
-});
-
-const urlParams = new URLSearchParams(window.location.search);
-const specialty = urlParams.get('specialty');
-console.log("Searching for doctors in:", specialty);
+// document.querySelectorAll('.specialty-card').forEach(card => {
+//     card.style.cursor = 'pointer';
+//     card.addEventListener('click', () => {
+//         const specialty = encodeURIComponent(card.getAttribute('data-specialty'));
+//         window.location.href = `spec.html?specialty=${specialty}`;
+//     });
+// });
+//
+// const urlParams = new URLSearchParams(window.location.search);
+// const specialty = urlParams.get('specialty');
+// console.log("Searching for doctors in:", specialty);
 
 //7war el region
 document.addEventListener("DOMContentLoaded", function () {

@@ -1,0 +1,53 @@
+.h {
+                    background-color: #00c4b4;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .h .btn-outline-light {
+                    color: white;
+                    border-color: white;
+                    transition: all 0.3s ease;
+                }
+
+                .h .btn-outline-light:hover {
+                    background-color: white;
+                    color: #00c4b4;
+                }
+
+                .h .btn {
+                    padding: 0.5rem 1rem;
+                    font-size: 0.9rem;
+                }
+
+                .h .bi {
+                    font-size: 1.1rem;
+                }
+
+                /* Modal styles */
+                .modal-content {
+                    border-radius: 15px;
+                }
+
+                .modal-header {
+                    border-top-left-radius: 15px;
+                    border-top-right-radius: 15px;
+                    color: white;
+                }
+
+                .btn-close {
+                    filter: brightness(0) invert(1);
+                }
+                footer {
+                    background-color: #00c4b4;
+                    color: white;
+                    padding: 10px;
+                    margin-top: 15px;
+                    position: relative;
+                }
+
+                footer .social-icons i {
+                    font-size: 1.5rem;
+                    margin: 0 10px;
+                    color: #ffffff;
+                }

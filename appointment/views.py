@@ -424,7 +424,6 @@ def edit_exception_hours(request, exception_id):
     return redirect('home')  # redirect if accessed via GET
 
 
-@login_required(login_url='login')
 def change_profile_picture(request):
     if request.method == 'POST' and request.FILES.get('profile_picture'):
         user = request.user
@@ -458,9 +457,6 @@ def change_profile_picture(request):
 
         except (Doctor.DoesNotExist, Patient.DoesNotExist) as e:
             return redirect('home')
-
-    return redirect('home')
-
 
 @login_required(login_url='login')
 def edit_medical_history(request, patient_id):
@@ -961,6 +957,7 @@ def edit_patient_admin(request, patient_id):
                     return JsonResponse({'success': False, 'message': 'Email already exists'})
 
             patient.save()
+            return JsonResponse({'success': True, 'message': 'Patient updated successfully'})
             return JsonResponse({'success': True, 'message': 'Patient updated successfully'})
 
         return JsonResponse({'success': False, 'message': 'Invalid request method'})

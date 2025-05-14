@@ -46,6 +46,7 @@
                     <input type="file" id="profile_picture" name="profile_picture" class="form-control d-none"
                            accept="image/*" onchange="submitProfilePic()">
                 </form>
+
                 <!-- Edit Personal Information Button -->
                 <button class="btn btn-danger mt-2" id="editPersonalInfo" data-bs-toggle="modal"
                         data-bs-target="#editInfoModal">Edit Personal Info
@@ -99,17 +100,17 @@
                 <div class="card-body">
                     <table class="table" id="appointmentsTable">
                         <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Doctor</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                                <th>Review</th>
-                            </tr>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Doctor</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                            <th>Review</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {% for appointment in appointments %}
+                        {% for appointment in appointments %}
                             <tr>
                                 <td>{{ appointment.appointment_date }}</td>
                                 <td>{{ appointment.appointment_time|time:"H:i" }}</td>
@@ -117,7 +118,8 @@
                                 <td>{{ appointment.status }}</td>
                                 <td>
                                     {% if appointment.status != 'Cancelled' and appointment.status != 'Completed' %}
-                                        <form method="post" action="{% url 'appointment_status' appointment.appointment_id %}">
+                                        <form method="post"
+                                              action="{% url 'appointment_status' appointment.appointment_id %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="status" value="Cancelled">
                                             <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
@@ -137,11 +139,11 @@
                                     {% endif %}
                                 </td>
                             </tr>
-                            {% empty %}
+                        {% empty %}
                             <tr>
                                 <td colspan="6">No appointments found.</td>
                             </tr>
-                            {% endfor %}
+                        {% endfor %}
                         </tbody>
                     </table>
 
@@ -393,14 +395,6 @@
 <script src="{% static 'script/home.js' %}"></script>
 <script src="{% static 'script/pprofile.js' %}"></script>
 
-<script>
-    function submitProfilePic() {
-        const fileInput = document.getElementById('profile_picture');
-        if (fileInput.files && fileInput.files[0]) {
-            // Submit the form automatically when a file is selected
-            document.getElementById('profilePicForm').submit();
-        }
-    }
-</script>
+
 </body>
 </html>

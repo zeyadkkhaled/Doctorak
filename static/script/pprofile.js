@@ -13,7 +13,6 @@ function updateProfilePicture() {
     }
 }
 
-
 document.getElementById('saveChanges').addEventListener('click', function () {
     const firstName = document.getElementById('inputFirstName').value;
     const lastName = document.getElementById('inputLastName').value;

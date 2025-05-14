@@ -1,16 +1,17 @@
 # from email.utils import specialsre
-
+from django.http import JsonResponse
 from django.shortcuts import redirect
-from .models import User, Doctor, Patient, Clinic, WeeklyAvailability, Appointment, AvailabilityException,MedicalRecord
-from .models import MedicalHistory,RatingReview,Prescription
+from .models import User, Doctor, Patient, Clinic, WeeklyAvailability, Appointment, AvailabilityException, MedicalRecord
+from .models import MedicalHistory, RatingReview, Prescription,Admin
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from datetime import datetime, timedelta
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
+
 
 def home(request):
     login_url = reverse('login')
@@ -23,6 +24,8 @@ def home(request):
         'specialty_counts': specialty_dict
     }
     return render(request, 'home.html', context)
+
+
 def register(request):
     message = request.GET.get('message')
     if request.user.is_authenticated:
@@ -163,7 +166,7 @@ def loginPage(request):
             elif user.role == 'patient':
                 return redirect('patient_profile', patient_id=user.user_id)
             elif user.role == 'admin':
-                return redirect('admin_dashboard')
+                return redirect('admin_profile',admin_id=user.user_id)
         else:
             message = "Invalid credentials."
     return render(request, 'signin.html', {'message': message})
@@ -216,6 +219,8 @@ def doctor_profile(request, doctor_id):
 
     except Doctor.DoesNotExist:
         return render(request, '404.html', status=404)
+
+
 @login_required(login_url='login')
 def patient_profile(request, patient_id):
     message = request.GET.get('message')
@@ -228,7 +233,7 @@ def patient_profile(request, patient_id):
     appointments = Appointment.objects.filter(patient_id=patient.patient_id)
     medical_record = MedicalRecord.objects.filter(patient_id=patient.patient_id)
     medical_history = MedicalHistory.objects.filter(patient_id=patient.patient_id).first()
-    prescription= Prescription.objects.filter(patient_id=patient.patient_id)
+    prescription = Prescription.objects.filter(patient_id=patient.patient_id)
 
     return render(request, 'p-profile.html', {
         'patient': patient,
@@ -313,8 +318,11 @@ def edit_patient_profile(request, patient_id):
     # If GET request
     else:
         return render(request, 'p-profile.html', {'patient': patient})
+
+
 from django.contrib import messages
 from datetime import datetime
+
 
 @login_required(login_url='login')
 def edit_clinic_profile(request, clinic_id):
@@ -370,10 +378,10 @@ def edit_clinic_profile(request, clinic_id):
 
                 # Check for duplicate
                 if AvailabilityException.objects.filter(
-                    doctor=doctor,
-                    date=date_obj,
-                    override_start_time=start_time,
-                    override_end_time=end_time
+                        doctor=doctor,
+                        date=date_obj,
+                        override_start_time=start_time,
+                        override_end_time=end_time
                 ).exists():
                     duplicate_found = True
                     continue  # Skip duplicate
@@ -399,9 +407,9 @@ def edit_clinic_profile(request, clinic_id):
     }
     return render(request, 'd-profile.html', context)
 
+
 @login_required(login_url='login')
 def edit_exception_hours(request, exception_id):
-
     try:
         exception_hours = AvailabilityException.objects.get(id=exception_id)
         doctor_id = exception_hours.doctor_id
@@ -453,6 +461,7 @@ def change_profile_picture(request):
 
     return redirect('home')
 
+
 @login_required(login_url='login')
 def edit_medical_history(request, patient_id):
     patient = Patient.objects.get(user_id=patient_id)
@@ -498,6 +507,7 @@ def edit_medical_history(request, patient_id):
 
 from django.db.models import Q
 
+
 def doctor_list(request):
     # Check if the user is authenticated
     if not request.user.is_authenticated:
@@ -542,6 +552,7 @@ def doctor_list(request):
         'region': region
     }
     return render(request, 'spec.html', context)
+
 
 @login_required(login_url='login')
 def doctor_info(request, doctor_id):
@@ -625,13 +636,15 @@ def doctor_info(request, doctor_id):
             'reviews': reviews,
             'appointments': list(appointments),
             'message': request.GET.get('message', ''),
-            'reviews' : reviews,
+            'reviews': reviews,
         }
 
         return render(request, 'doctor_info.html', context)
 
     except Doctor.DoesNotExist:
         return render(request, '404.html', status=404)
+
+
 @login_required(login_url='login')
 def appointment_status(request, appointment_id):
     if request.method == 'POST':
@@ -646,8 +659,10 @@ def appointment_status(request, appointment_id):
             return redirect(f'/doctor/{request.user.user_id}?message=Error updating appointment.')
 
     return redirect(f'/doctor/{request.user.user_id}')
+
+
 @login_required(login_url='login')
-def doctor_patient_view(request,patient_id):
+def doctor_patient_view(request, patient_id):
     message = request.GET.get('message')
     patient = Patient.objects.get(user_id=patient_id)
 
@@ -674,10 +689,9 @@ def doctor_patient_view(request,patient_id):
     except Patient.DoesNotExist:
         return render(request, '404.html', status=404)
 
-    return render(request, 'doctor_patient_view.html', {'patient': patient, 'appointments': appointments, 'message': message,
-                                              'medicalhistory': medical_history, 'medical_record': medical_record})
-
-
+    return render(request, 'doctor_patient_view.html',
+                  {'patient': patient, 'appointments': appointments, 'message': message,
+                   'medicalhistory': medical_history, 'medical_record': medical_record})
 
 
 @login_required(login_url='login')
@@ -688,7 +702,6 @@ def save_prescription(request):
         appointment_id = request.POST.get('appointment_id')
         patient_id = request.POST.get('patient_id')
         doctor_id = request.POST.get('doctor_id')
-
 
         prescription = request.POST.get('prescription', '').strip()
         notes = request.POST.get('notes', '').strip()
@@ -779,17 +792,212 @@ def save_review(request):
 
     return redirect('home')
 
+
 @login_required(login_url='login')
-def admin_profile(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
+def admin_profile(request, admin_id):
+    try:
+        admin = Admin.objects.get(user_id=admin_id)
+        doctors = Doctor.objects.all().select_related('user', 'clinic')
+        patients = Patient.objects.all().select_related('user')
+        appointments = Appointment.objects.all().select_related('doctor', 'patient', 'clinic')
+        admins = Admin.objects.all().select_related('user')
 
-    # Check if the user is an admin
-    if request.user.role != 'admin':
-        return redirect('home')
+        # Get counts for dashboard
+        doctor_count = doctors.count()
+        patient_count = patients.count()
+        appointment_count = appointments.count()
+        admin_count = admins.count()
+        days=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        context = {
+            'admin': admin,
+            'doctors': doctors,
+            'patients': patients,
+            'appointments': appointments,
+            'admins': admins,
+            'doctor_count': doctor_count,
+            'patient_count': patient_count,
+            'appointment_count': appointment_count,
+            'admin_count': admin_count,
+            'days': days,
+        }
 
-    # Fetch all doctors and patients
-    doctors = Doctor.objects.all()
-    patients = Patient.objects.all()
+        return render(request, 'admin_profile.html', context)
 
-    return render(request, 'admin_profile.html', {'doctors': doctors, 'patients': patients})
+    except Admin.DoesNotExist:
+        return render(request, '404.html', status=404)
+def adminregister(request):
+    if request.method == 'POST':
+        first_name = request.POST['f_name']
+        last_name = request.POST['l_name']
+        email = request.POST['email']
+        password = request.POST['password']
+        gender = request.POST['gender']
+        dob = request.POST['dob']
+        phone_number = request.POST['phone']
+        address = request.POST['address']
+        role = 'admin'
+        # Check if the email already exists
+        if User.objects.filter(email=email).exists():
+            return render(request, 'adminregister.html', {'message': "Email already exists."})
+        else:
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                role='admin',
+            )
+            # Create an admin profile
+            admin = Admin.objects.create(
+                user=user,
+                f_name=first_name,
+                l_name=last_name,
+                gender=gender,
+                dob=dob,
+                phone=phone_number,
+                address=address
+            )
+            message = "Admin registration successful. You can now log in."
+            return render(request, 'adminregister.html', {'message': message})
+    return render(request, 'adminregister.html')
+
+
+@login_required(login_url='login')
+def edit_admin(request, admin_id):
+    try:
+        admin = Admin.objects.get(admin_id=admin_id)
+        if request.method == 'POST':
+            # Update admin profile
+            admin.f_name = request.POST.get('f_name')
+            admin.l_name = request.POST.get('l_name')
+            admin.dob = request.POST.get('dob')
+            admin.gender = request.POST.get('gender')
+            admin.phone = request.POST.get('phone')
+            admin.address = request.POST.get('address')
+
+            # Update user email if changed
+            user = admin.user
+            new_email = request.POST.get('email')
+            if user.email != new_email:
+                if not User.objects.filter(email=new_email).exists():
+                    user.email = new_email
+                    user.save()
+                else:
+                    return JsonResponse({'success': False, 'message': 'Email already exists'})
+
+            admin.save()
+            return JsonResponse({'success': True, 'message': 'Admin updated successfully'})
+
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+    except Admin.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Admin not found'})
+
+
+@login_required(login_url='login')
+def edit_doctor_admin(request, doctor_id):
+    try:
+        doctor = Doctor.objects.get(doctor_id=doctor_id)
+        if request.method == 'POST':
+            # Update doctor profile
+            doctor.f_name = request.POST.get('f_name')
+            doctor.l_name = request.POST.get('l_name')
+            doctor.dob = request.POST.get('dob')
+            doctor.gender = request.POST.get('gender')
+            doctor.phone = request.POST.get('phone')
+            doctor.address = request.POST.get('address')
+            doctor.speciality = request.POST.get('speciality')
+            doctor.experience = request.POST.get('experience')
+
+            # Update clinic information
+            clinic = doctor.clinic
+            clinic.clinic_name = request.POST.get('clinic_name')
+            clinic.phone = request.POST.get('clinic_phone')
+            clinic.address = request.POST.get('clinic_address')
+            clinic.country = request.POST.get('country')
+            clinic.city = request.POST.get('city')
+            clinic.region = request.POST.get('region')
+            clinic.examination_price = request.POST.get('examination_price')
+            clinic.save()
+
+            # Update user email if changed
+            user = doctor.user
+            new_email = request.POST.get('email')
+            if user.email != new_email:
+                if not User.objects.filter(email=new_email).exists():
+                    user.email = new_email
+                    user.save()
+                else:
+                    return JsonResponse({'success': False, 'message': 'Email already exists'})
+
+            doctor.save()
+            return JsonResponse({'success': True, 'message': 'Doctor updated successfully'})
+
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+    except Doctor.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Doctor not found'})
+
+
+@login_required(login_url='login')
+def edit_patient_admin(request, patient_id):
+    try:
+        patient = Patient.objects.get(patient_id=patient_id)
+        if request.method == 'POST':
+            # Update patient profile
+            patient.f_name = request.POST.get('f_name')
+            patient.l_name = request.POST.get('l_name')
+            patient.dob = request.POST.get('dob')
+            patient.gender = request.POST.get('gender')
+            patient.phone = request.POST.get('phone')
+            patient.address = request.POST.get('address')
+
+            # Update user email if changed
+            user = patient.user
+            new_email = request.POST.get('email')
+            if user.email != new_email:
+                if not User.objects.filter(email=new_email).exists():
+                    user.email = new_email
+                    user.save()
+                else:
+                    return JsonResponse({'success': False, 'message': 'Email already exists'})
+
+            patient.save()
+            return JsonResponse({'success': True, 'message': 'Patient updated successfully'})
+
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+    except Patient.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Patient not found'})
+
+
+@login_required(login_url='login')
+def edit_appointment_admin(request, appointment_id):
+    try:
+        appointment = Appointment.objects.get(appointment_id=appointment_id)
+        if request.method == 'POST':
+            # Update appointment
+            doctor_id = request.POST.get('doctor_id')
+            patient_id = request.POST.get('patient_id')
+            appointment_date = request.POST.get('appointment_date')
+            appointment_time = request.POST.get('appointment_time')
+            status = request.POST.get('status')
+
+            try:
+                doctor = Doctor.objects.get(doctor_id=doctor_id)
+                patient = Patient.objects.get(patient_id=patient_id)
+
+                appointment.doctor = doctor
+                appointment.patient = patient
+                appointment.appointment_date = appointment_date
+                appointment.appointment_time = appointment_time
+                appointment.status = status
+                appointment.save()
+
+                return JsonResponse({'success': True, 'message': 'Appointment updated successfully'})
+
+            except (Doctor.DoesNotExist, Patient.DoesNotExist):
+                return JsonResponse({'success': False, 'message': 'Invalid doctor or patient ID'})
+
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+    except Appointment.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Appointment not found'})

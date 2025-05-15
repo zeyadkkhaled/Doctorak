@@ -65,7 +65,6 @@ Doctorak uses a custom user model extending Django's `AbstractUser`, with role-b
 
 ## Entity Relationship Diagram (ERD)
 
-> _Include a diagram image or link to a tool like dbdiagram.io or drawSQL._
 
 **Preview:**
 
@@ -116,7 +115,7 @@ MedicalRecord
 ├── files
 ```
 
-> Replace the preview above with an actual image once available:  
+
 
 ![Entity Relationship Diagram](./erd.jpg)
 
@@ -125,13 +124,20 @@ MedicalRecord
 
 ## Screenshots
 
-_Add your screenshots in a `screenshots/` folder and link them here:_
 
-```markdown
+![Signup](screenshots/signup.png)
 ![Login](screenshots/login.png)
+![Home](screenshots/home.png)
+![Home2](screenshots/home2.png)
+![Search Result](screenshots/searchresult.png)
+![Book Doctor](screenshots/bookdoctor.png)
 ![Doctor Profile](screenshots/doctor_profile.png)
+![Doctor Profile](screenshots/doctor_profile2.png)
 ![Admin Dashboard](screenshots/admin_dashboard.png)
-```
+![Patient Profile](screenshots/patient1.png)
+![Patient Profile 2](screenshots/patient2.png)
+
+
 
 ---
 
@@ -145,6 +151,7 @@ _Add your screenshots in a `screenshots/` folder and link them here:_
 **Backend**:  
 - Python 3.x  
 - Django  
+- Django rest framework
 - Django Templating Engine  
 
 **Database**:  
@@ -205,12 +212,6 @@ Doctorak/
 - [x] REST API for mobile apps  
 - [x] Uploadable medical reports (PDF, images)  
 - [x] Ratings and reviews for doctors  
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 

@@ -146,7 +146,7 @@ MedicalRecord
 **Frontend**:  
 - HTML5, CSS3  
 - JavaScript  
-- Bootstrap (if applicable)
+- Bootstrap
 
 **Backend**:  
 - Python 3.x  

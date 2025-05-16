@@ -28,35 +28,42 @@
     <div class="profile-container d-flex">
         <!-- Profile Header -->
         <div class="profile-header text-center bg-white p-3 rounded shadow">
-            <img src="{{ patient.profile_picture.url }}" alt="Profile Picture" id="profilePicture"
-                 class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+             <!-- Display message if present -->
             {% if message %}
-                <div class="alert alert-success" role="alert">
+                <div class="alert alert-success mt-2" role="alert">
                     {{ message }}
                 </div>
             {% endif %}
+            <!-- Patient Info -->
             <h3 class="mt-3" id="profileName">{{ patient.f_name|capfirst }}</h3>
             <p class="text-muted">Patient ID: {{ patient.patient_id }}</p>
-            <div class="d-grid gap-2">
-                <!-- Edit Profile Picture -->
-                <form action="{% url 'change_profile_picture' %}" method="POST" enctype="multipart/form-data"
-                      id="profilePicForm">
-                    {% csrf_token %}
-                    <label for="profile_picture" class="btn btn-danger">Change Profile Picture</label>
-                    <input type="file" id="profile_picture" name="profile_picture" class="form-control d-none"
-                           accept="image/*" onchange="submitProfilePic()">
-                </form>
 
-                <!-- Edit Personal Information Button -->
-                <button class="btn btn-danger mt-2" id="editPersonalInfo" data-bs-toggle="modal"
-                        data-bs-target="#editInfoModal">Edit Personal Info
+            <!-- Profile Picture & Upload Form -->
+            <form id="profilePicForm" method="POST" action="{% url 'change_profile_picture' %}"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="profile_picture" name="profile_picture" accept="image/*" style="display: none;">
+                <img src="{{ patient.profile_picture.url|default:'/static/imgs/default-profile.png' }}"
+                     alt="Profile Picture"
+                     id="profilePicture"
+                     class="img-fluid rounded-circle mb-3"
+                     style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;">
+                <!-- Styled like the other buttons -->
+                <label for="profile_picture" class="btn btn-danger btn-sm">Change Profile Picture</label>
+            </form>
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 mt-3">
+                <button class="btn btn-danger" id="editPersonalInfo" data-bs-toggle="modal"
+                        data-bs-target="#editInfoModal">
+                    Edit Personal Info
                 </button>
-                <button class="btn btn-danger mt-2" id="editMedicalHistory" data-bs-toggle="modal"
-                        data-bs-target="#editHistoryModal">Edit Medical History
+                <button class="btn btn-danger" id="editMedicalHistory" data-bs-toggle="modal"
+                        data-bs-target="#editHistoryModal">
+                    Edit Medical History
                 </button>
-
             </div>
         </div>
+
         <!-- Content -->
         <div class="content flex-grow-1 ms-3">
             <!-- Personal Information -->

@@ -1,18 +1,26 @@
-//by edit pp
-function updateProfilePicture() {
-    const fileInput = document.getElementById('editProfilePic');
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile Picture Handling
+    const profilePicForm = document.getElementById('profilePicForm');
     const profilePicture = document.getElementById('profilePicture');
-    const file = fileInput.files[0];
+    const fileInput = document.getElementById('profile_picture');
 
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            profilePicture.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+    if (profilePicture && fileInput) {
+        profilePicture.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePicture.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+                profilePicForm.submit();
+            }
+        });
     }
-}
-
+});
 document.getElementById('saveChanges').addEventListener('click', function () {
     const firstName = document.getElementById('inputFirstName').value;
     const lastName = document.getElementById('inputLastName').value;

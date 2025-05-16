@@ -94,14 +94,12 @@ def register(request):
                 for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']:
                     start_time = request.POST.get(f'{day.lower()}_start')
                     end_time = request.POST.get(f'{day.lower()}_end')
-                    print(f"Day: {day}, Start: {start_time}, End: {end_time}")  # Debug print
                     if start_time and end_time:
                         selected_days.append({
                             'day': day,
                             'start_time': start_time,
                             'end_time': end_time
                         })
-                print("Selected days:", selected_days)  # Debug print
                 # Create weekly availability entries for each selected day
 
                 doctor = Doctor.objects.get(user=user)
@@ -113,7 +111,6 @@ def register(request):
                             start_time=day_data['start_time'],
                             end_time=day_data['end_time']
                         )
-                        print(f"Created availability for {day_data['day']}")  # Debug print'
                         message = "Registration successful. You can now log in."
                     except Exception as e:
                         print(f"Error creating availability: {str(e)}")  # Debug print
@@ -203,9 +200,6 @@ def doctor_profile(request, doctor_id):
         appointments = Appointment.objects.filter(doctor_id=doctor.doctor_id)
         reviews = RatingReview.objects.filter(doctor_id=doctor.doctor_id)
 
-        # Debug prints
-        print("Doctor ID:", doctor.doctor_id)
-        print("Reviews:", reviews.values())
 
         return render(request, 'd-profile.html', {
             'doctor': doctor,
@@ -433,30 +427,35 @@ def change_profile_picture(request):
             if user.role == 'doctor':
                 profile = Doctor.objects.get(user=user)
                 upload_path = f'static/images/doctors/profile_pics/{user.user_id}.png'
+                redirect_name = 'doctor_profile'
+                redirect_args = [profile.user_id]
             else:
                 profile = Patient.objects.get(user=user)
                 upload_path = f'static/images/patients/profile_pics/{user.user_id}.png'
+                redirect_name = 'patient_profile'
+                redirect_args = [profile.user_id]
 
-            # Delete old picture if exists
             import os
             if os.path.exists(upload_path):
                 os.remove(upload_path)
 
-            # Save new picture
             with open(upload_path, 'wb+') as destination:
                 for chunk in image.chunks():
                     destination.write(chunk)
 
-            # Update profile picture path in database
             if user.role == 'doctor':
                 Doctor.objects.filter(user=user).update(profile_picture=upload_path)
-                return redirect(f'/doctor/{user.user_id}?message=Profile picture updated successfully.')
             else:
                 Patient.objects.filter(user=user).update(profile_picture=upload_path)
-                return redirect(f'/patient/{user.user_id}?message=Profile picture updated successfully.')
 
-        except (Doctor.DoesNotExist, Patient.DoesNotExist) as e:
+            response = redirect(redirect_name, *redirect_args)
+            response['Location'] += '?message=Profile picture updated successfully.'
+            return response
+
+        except (Doctor.DoesNotExist, Patient.DoesNotExist):
             return redirect('home')
+
+    return redirect('home')
 
 @login_required(login_url='login')
 def edit_medical_history(request, patient_id):

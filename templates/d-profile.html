@@ -26,45 +26,54 @@
 
 <div class="container">
     <div class="profile-container d-flex">
-        <!-- Profile Header -->
         <div class="profile-header text-center bg-white p-3 rounded shadow">
-            <img src="{{ doctor.profile_picture.url }}" alt="Profile Picture" id="profilePicture"
-                 class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+            <!-- Display message if present -->
             {% if message %}
-                <div class="alert alert-success" role="alert">
+                <div class="alert alert-success mt-2" role="alert">
                     {{ message }}
                 </div>
             {% endif %}
+
+            <!-- Doctor Info -->
             <h3 class="mt-3" id="profileName">{{ doctor.f_name|capfirst }}</h3>
             <p class="text-muted">Doctor ID: {{ doctor.doctor_id }}</p>
-            <div class="d-grid gap-2">
-                <!-- Edit Profile Picture -->
-                <form action="{% url 'change_profile_picture' %}" method="POST" enctype="multipart/form-data"
-                      id="profilePicForm">
-                    {% csrf_token %}
-                    <label for="profile_picture" class="btn btn-danger">Change Profile Picture</label>
-                    <input type="file" id="profile_picture" name="profile_picture" class="form-control d-none"
-                           accept="image/*" onchange="submitProfilePic()">
-                </form>
-                <!-- Edit Personal Information Button -->
-                <button class="btn btn-danger mt-2" id="editPersonalInfo" data-bs-toggle="modal"
-                        data-bs-target="#editInfoModal">Edit Personal Info
-                </button>
-                <!-- Edit Clinic Information Button -->
-                <button class="btn btn-danger mt-2" id="editClinicInfo" data-bs-toggle="modal"
-                        data-bs-target="#editClinicInfoModal">Edit Clinic Info
 
+            <!-- Profile Picture & Upload Form -->
+            <form id="profilePicForm" method="POST" action="{% url 'change_profile_picture' %}"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="profile_picture" name="profile_picture" accept="image/*" style="display: none;">
+                <img src="{{ doctor.profile_picture.url|default:'/static/images/defaults/default.png' }}?{{ now|date:'U' }}"
+                     alt="Profile Picture"
+                     id="profilePicture"
+                     class="img-fluid rounded-circle mb-3"
+                     style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;">
+
+                <!-- Styled like the other buttons -->
+                <label for="profile_picture" class="btn btn-danger btn-sm">Change Profile Picture</label>
+            </form>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 mt-3">
+                <button class="btn btn-danger" id="editPersonalInfo" data-bs-toggle="modal"
+                        data-bs-target="#editInfoModal">
+                    Edit Personal Info
                 </button>
-                <!-- Logout Button -->
+                <button class="btn btn-danger" id="editClinicInfo" data-bs-toggle="modal"
+                        data-bs-target="#editClinicInfoModal">
+                    Edit Clinic Info
+                </button>
                 <a href="{% url 'logout' %}">
-                    <button class="btn btn-danger mt-2" id="logoutButton"
+                    <button class="btn btn-danger" id="logoutButton"
                             style="background-color: #eebb4a; border-color: white; transition: background-color 0.2s;"
                             onmouseover="this.style.backgroundColor='#c99a2b'"
-                            onmouseout="this.style.backgroundColor='#eebb4a'">Logout
+                            onmouseout="this.style.backgroundColor='#eebb4a'">
+                        Logout
                     </button>
                 </a>
             </div>
         </div>
+
         <!-- Content -->
         <div class="content flex-grow-1 ms-3">
             <!-- Personal Information -->
@@ -272,41 +281,41 @@
             </div>
             <!-- Patient Reviews -->
 
-         <div class="card mt-4">
+            <div class="card mt-4">
                 <div class="card-header text-white" style="background-color: #00c4b4;">
                     Patient Reviews
                 </div>
                 <div class="card-body">
                     <table class="table">
                         <thead>
-                            <tr>
-                                <th>Patient</th>
-                                <th>Date</th>
-                                <th>Rating</th>
-                                <th>Comment</th>
-                            </tr>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Date</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {% for review in reviews %}
-                                <tr>
-                                    <td>{{ review.patient.f_name }} {{ review.patient.l_name }}</td>
-                                    <td>{{ review.date_issued|date:"Y-m-d" }}</td>
-                                    <td>
-                                        {% for i in "12345"|make_list %}
-                                            {% if forloop.counter <= review.rating %}
-                                                <i class="bi bi-star-fill text-warning"></i>
-                                            {% else %}
-                                                <i class="bi bi-star text-muted"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>{{ review.comment }}</td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">No reviews yet.</td>
-                                </tr>
-                            {% endfor %}
+                        {% for review in reviews %}
+                            <tr>
+                                <td>{{ review.patient.f_name }} {{ review.patient.l_name }}</td>
+                                <td>{{ review.date_issued|date:"Y-m-d" }}</td>
+                                <td>
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        {% else %}
+                                            <i class="bi bi-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ review.comment }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No reviews yet.</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -727,14 +736,13 @@
 
 <!-- Scripts -->
 <script>
-    // Function to handle the profile picture upload
-    function submitProfilePic() {
-        const fileInput = document.getElementById('profile_picture');
-        if (fileInput.files && fileInput.files[0]) {
-            // Submit the form automatically when a file is selected
-            document.getElementById('profilePicForm').submit();
-        }
-    }
+    document.getElementById('profile_picture').addEventListener('change', function () {
+        document.getElementById('profilePicForm').submit();
+    });
+</script>
+
+<script src="{% static 'script/pprofile.js' %}"></script>
+<script>
 
     // Function to validate time
     function isValidTime(startTime, endTime) {
@@ -923,6 +931,5 @@
 <script src="{% static 'script/home.js' %}"></script>
 <script src="{% static 'script/profile.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

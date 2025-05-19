@@ -215,7 +215,7 @@ class myheader extends HTMLElement {
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="password">Password</label>
-                                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                                    <input type="password" name="password" class="form-control" placeholder="Password" required autocomplete="current-password">
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block w-100" style="background-color: #00c4b4;">Login</button>
                             </form>

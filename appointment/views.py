@@ -20,6 +20,7 @@ def home(request):
     specialty_dict = {item['speciality']: item['count'] for item in specialty_counts}
 
     context = {
+        'user_id' : request.user.user_id if request.user.is_authenticated else None,
         'login_url': login_url,
         'specialty_counts': specialty_dict
     }
@@ -134,7 +135,7 @@ def register(request):
                 )
                 # Create a MedicalHistory profile
                 MedicalHistory.objects.create(
-                    patient=user,
+                    patient=Patient,
                     allergies="",
                     surgeries="",
                     past_illnesses="",
@@ -997,3 +998,48 @@ def edit_appointment_admin(request, appointment_id):
 
     except Appointment.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Appointment not found'})
+
+def ai_test_page(request):
+    return render(request, 'ai_test.html')
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+@require_http_methods(["DELETE"])
+def delete_admin(request, admin_id):
+    try:
+        admin = Admin.objects.get(admin_id=admin_id)
+        admin.user.delete()  # Delete associated User
+        admin.delete()
+        return JsonResponse({'success': True, 'message': 'Admin deleted successfully'})
+    except Admin.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Admin not found'}, status=404)
+
+@require_http_methods(["DELETE"])
+def delete_doctor(request, doctor_id):
+    try:
+        doctor = Doctor.objects.get(doctor_id=doctor_id)
+        doctor.user.delete()  # Delete associated User
+        doctor.delete()
+        return JsonResponse({'success': True, 'message': 'Doctor deleted successfully'})
+    except Doctor.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Doctor not found'}, status=404)
+
+@require_http_methods(["DELETE"])
+def delete_patient(request, patient_id):
+    try:
+        patient = Patient.objects.get(patient_id=patient_id)
+        patient.user.delete()  # Delete associated User
+        patient.delete()
+        return JsonResponse({'success': True, 'message': 'Patient deleted successfully'})
+    except Patient.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Patient not found'}, status=404)
+
+@require_http_methods(["DELETE"])
+def delete_appointment(request, appointment_id):
+    try:
+        appointment = Appointment.objects.get(appointment_id=appointment_id)
+        appointment.delete()
+        return JsonResponse({'success': True, 'message': 'Appointment deleted successfully'})
+    except Appointment.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Appointment not found'}, status=404)

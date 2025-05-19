@@ -1,18 +1,21 @@
 from django.urls import path
 from . import views
+from .views import ai_test_page
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.decorators.http import require_http_methods
+
 urlpatterns = [
-    path('',views.home,name='home'),
-    path('register/',views.register,name='register'),
-    path('login/',views.loginPage,name='login'),
-    path('articles.html',views.articles,name='articles'),
-    path('logout/',views.logoutUser,name='logout'),
+    path('', views.home, name='home'),
+    path('register/', views.register, name='register'),
+    path('login/', views.loginPage, name='login'),
+    path('articles.html', views.articles, name='articles'),
+    path('logout/', views.logoutUser, name='logout'),
     path('doctor/<str:doctor_id>/', views.doctor_profile, name='doctor_profile'),
     path('patient/<str:patient_id>/', views.patient_profile, name='patient_profile'),
     path('doctor/<str:doctor_id>/edit/', views.edit_doctor_profile, name='edit_doctor_profile'),
     path('clinic/<str:clinic_id>/edit/', views.edit_clinic_profile, name='edit_clinic_profile'),
-    path('exception/<str:exception_id>',views.edit_exception_hours, name='edit_exception_hours'),
+    path('exception/<str:exception_id>', views.edit_exception_hours, name='edit_exception_hours'),
     path('change_profile_picture/', views.change_profile_picture, name='change_profile_picture'),
     path('profile/', views.profile_view, name='profile'),
     path('patient/<str:patient_id>/edit', views.edit_patient_profile, name='edit_patient_profile'),
@@ -23,10 +26,19 @@ urlpatterns = [
     path('doctor-patient-view/<str:patient_id>/', views.doctor_patient_view, name='doctor_patient_view'),
     path('save-prescription/', views.save_prescription, name='save_prescription'),
     path('save_review/', views.save_review, name='save_review'),
-    path('adminregister/',views.adminregister,name='adminregister'),
-    path('adminlogin/<str:admin_id>',views.admin_profile,name='admin_profile'),
+    path('adminregister/', views.adminregister, name='adminregister'),
+    path('adminlogin/<str:admin_id>', views.admin_profile, name='admin_profile'),
     path('admin/edit-admin/<int:admin_id>/', views.edit_admin, name='edit_admin'),
     path('admin/edit-doctor/<int:doctor_id>/', views.edit_doctor_admin, name='edit_doctor_admin'),
     path('admin/edit-patient/<int:patient_id>/', views.edit_patient_admin, name='edit_patient_admin'),
     path('admin/edit-appointment/<int:appointment_id>/', views.edit_appointment_admin, name='edit_appointment_admin'),
+    path('test-ai/', ai_test_page, name='ai_test'),
+    path('admin/delete-admin/<int:admin_id>/', require_http_methods(["DELETE"])(views.delete_admin),
+         name='delete_admin'),
+    path('admin/delete-doctor/<int:doctor_id>/', require_http_methods(["DELETE"])(views.delete_doctor),
+         name='delete_doctor'),
+    path('admin/delete-patient/<int:patient_id>/', require_http_methods(["DELETE"])(views.delete_patient),
+         name='delete_patient'),
+    path('admin/delete-appointment/<int:appointment_id>/', require_http_methods(["DELETE"])(views.delete_appointment),
+         name='delete_appointment'),
 ]

@@ -29,6 +29,11 @@
 - 📂 **Medical Records** – Patient records are stored and accessible to doctors  
 - 💊 **Prescriptions** – Doctors can issue prescriptions and associate them with patient records  
 - 🔍 **Advanced Search** – Find doctors by specialty, clinic, and location  
+- 🤖 **AI Chatbot Assistant** – Conversational interface for:
+  - Recommending specialists based on symptoms  
+  - Displaying all available specialties  
+  - Extracting preferred appointment times from user messages  
+  - Booking appointments without forms  
 - 👤 **Role-Based Dashboard** – Doctors, patients, and admins get tailored interfaces  
 - 🛠 **Admin Panel** – Full control via Django admin (manage users, appointments, records)  
 - 🧾 **Medical History** – Doctors can view a patient’s history across visits  

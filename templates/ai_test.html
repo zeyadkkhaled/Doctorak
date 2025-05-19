@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Symptom Checker</title>
+</head>
+<body>
+    <h2>AI Symptom Checker</h2>
+    <textarea id="symptoms" rows="5" cols="50" placeholder="Describe your symptoms..."></textarea>
+    <br><br>
+    <button onclick="checkSymptoms()">Check</button>
+    <h3 id="result"></h3>
+
+    <script>
+        function checkSymptoms() {
+            const symptoms = document.getElementById('symptoms').value;
+            fetch('/ai/check_symptoms/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ symptoms: symptoms })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = data.message;
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = "Error: " + error;
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

@@ -80,4 +80,96 @@ function searchTable(inputId, tableId) {
       bootstrap.Modal.getInstance(document.getElementById('addAppointmentModal')).hide();
     });
   });
-  
+  // admin_profile.js
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    document.getElementById('adminSearch').addEventListener('input', searchAdmins);
+    document.getElementById('doctorSearch').addEventListener('input', searchDoctors);
+    document.getElementById('patientSearch').addEventListener('input', searchPatients);
+    document.getElementById('appointmentSearch').addEventListener('input', searchAppointments);
+});
+
+function searchAdmins() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#adminTable tbody tr');
+    filterRows(rows, searchTerm);
+}
+
+function searchDoctors() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#doctorsTable tbody tr');
+    filterRows(rows, searchTerm);
+}
+
+function searchPatients() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#patientsTable tbody tr');
+    filterRows(rows, searchTerm);
+}
+
+function searchAppointments() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#appointmentsTable tbody tr');
+    filterRows(rows, searchTerm);
+}
+
+function filterRows(rows, searchTerm) {
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+// Delete functions
+function confirmDeleteAdmin(adminId) {
+    if (confirm('Are you sure you want to delete this admin?')) {
+        deleteEntity(`/admin/delete-admin/${adminId}/`, 'Admin');
+    }
+}
+
+function confirmDeleteDoctor(doctorId) {
+    if (confirm('Are you sure you want to delete this doctor?')) {
+        deleteEntity(`/admin/delete-doctor/${doctorId}/`, 'Doctor');
+    }
+}
+
+function confirmDeletePatient(patientId) {
+    if (confirm('Are you sure you want to delete this patient?')) {
+        deleteEntity(`/admin/delete-patient/${patientId}/`, 'Patient');
+    }
+}
+
+function confirmDeleteAppointment(appointmentId) {
+    if (confirm('Are you sure you want to delete this appointment?')) {
+        deleteEntity(`/admin/delete-appointment/${appointmentId}/`, 'Appointment');
+    }
+}
+
+function deleteEntity(url, entityType) {
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`${entityType} deleted successfully`);
+            location.reload();
+        } else {
+            alert(`Error: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting');
+    });
+}
+
+function getCSRFToken() {
+    const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfTokenElement ? csrfTokenElement.value : '';
+}
